@@ -355,6 +355,10 @@
             cursor: pointer;
         }
         
+        .quantity-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
         .total-section {
             display: flex;
             justify-content: space-between;
@@ -406,6 +410,10 @@
             color: #999;
         }
         
+        .close-modal:hover {
+            color: var(--dark);
+        }
+        
         .modal-body {
             padding: 20px;
         }
@@ -442,6 +450,10 @@
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.2s;
+        }
+        
+        .option-btn:hover {
+            background-color: #f0f0f0;
         }
         
         .option-btn.selected {
@@ -549,7 +561,7 @@
                             <div class="card-body">
                                 <div style="display: flex; justify-content: space-around; text-align: center;">
                                     <div>
-                                        <h3 style="color: var(--accent);">¥1,258</h3>
+                                        <h3 style="color: var(--accent);">$125.80</h3>
                                         <p>今日销售额</p>
                                     </div>
                                     <div>
@@ -603,14 +615,14 @@
                                     <td>#20231115001</td>
                                     <td>10:25</td>
                                     <td>珍珠奶茶 x2</td>
-                                    <td>¥36.00</td>
+                                    <td>$3.60</td>
                                     <td><span style="color: var(--success);">已完成</span></td>
                                 </tr>
                                 <tr>
                                     <td>#20231115002</td>
                                     <td>10:42</td>
                                     <td>拿铁咖啡 x1, 抹茶拿铁 x1</td>
-                                    <td>¥53.00</td>
+                                    <td>$5.30</td>
                                     <td><span style="color: var(--warning);">制作中</span></td>
                                 </tr>
                             </tbody>
@@ -653,7 +665,7 @@
                             </div>
                             <div class="total-section">
                                 <span>总计:</span>
-                                <span id="total-amount">¥0.00</span>
+                                <span id="total-amount">$0.00</span>
                             </div>
                             <div style="display: flex; gap: 10px; margin-top: 15px;">
                                 <button class="btn btn-secondary" style="flex: 1;" id="hold-order">挂单</button>
@@ -755,8 +767,8 @@
                 <div class="option-group">
                     <div class="option-title">杯型选择</div>
                     <div class="option-buttons" id="size-options">
-                        <div class="option-btn" data-value="medium">中杯 (+¥0)</div>
-                        <div class="option-btn selected" data-value="large">大杯 (+¥3)</div>
+                        <div class="option-btn" data-value="medium">中杯 (+$0)</div>
+                        <div class="option-btn selected" data-value="large">大杯 (+$0.30)</div>
                     </div>
                 </div>
                 
@@ -783,10 +795,10 @@
                 <div class="option-group">
                     <div class="option-title">加料选择 (可多选)</div>
                     <div class="option-buttons" id="topping-options">
-                        <div class="option-btn" data-value="pearl">珍珠 (+¥2)</div>
-                        <div class="option-btn" data-value="pudding">布丁 (+¥3)</div>
-                        <div class="option-btn" data-value="grass-jelly">仙草 (+¥2)</div>
-                        <div class="option-btn" data-value="red-bean">红豆 (+¥2)</div>
+                        <div class="option-btn" data-value="pearl">珍珠 (+$0.20)</div>
+                        <div class="option-btn" data-value="pudding">布丁 (+$0.30)</div>
+                        <div class="option-btn" data-value="grass-jelly">仙草 (+$0.20)</div>
+                        <div class="option-btn" data-value="red-bean">红豆 (+$0.20)</div>
                     </div>
                 </div>
                 
@@ -829,7 +841,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">价格</label>
+                    <label class="form-label">价格 ($)</label>
                     <input type="number" class="form-control" id="product-price" placeholder="0.00" step="0.01" min="0">
                 </div>
                 <div class="form-group">
@@ -854,10 +866,10 @@
     <script>
         // 数据存储
         let products = JSON.parse(localStorage.getItem('products')) || [
-            { id: 1, name: "珍珠奶茶", price: 18, category: "milk-tea", icon: "🧋", status: "active" },
-            { id: 2, name: "拿铁咖啡", price: 28, category: "coffee", icon: "☕", status: "active" },
-            { id: 3, name: "水果茶", price: 20, category: "fruit-tea", icon: "🍹", status: "active" },
-            { id: 4, name: "抹茶拿铁", price: 25, category: "milk-tea", icon: "🍵", status: "active" }
+            { id: 1, name: "珍珠奶茶", price: 1.80, category: "milk-tea", icon: "🧋", status: "active" },
+            { id: 2, name: "拿铁咖啡", price: 2.80, category: "coffee", icon: "☕", status: "active" },
+            { id: 3, name: "水果茶", price: 2.00, category: "fruit-tea", icon: "🍹", status: "active" },
+            { id: 4, name: "抹茶拿铁", price: 2.50, category: "milk-tea", icon: "🍵", status: "active" }
         ];
         
         let cart = JSON.parse(localStorage.getItem('currentCart')) || [];
@@ -1162,7 +1174,7 @@
                 productElement.innerHTML = `
                     <div class="product-image">${product.icon}</div>
                     <div class="product-name">${product.name}</div>
-                    <div class="product-price">¥${product.price.toFixed(2)}</div>
+                    <div class="product-price">$${product.price.toFixed(2)}</div>
                 `;
                 
                 productElement.addEventListener('click', function() {
@@ -1209,11 +1221,11 @@
             
             // 计算加价
             let extraPrice = 0;
-            if (size === 'large') extraPrice += 3;
+            if (size === 'large') extraPrice += 0.30;
             
             toppings.forEach(topping => {
-                if (topping === 'pearl' || topping === 'grass-jelly' || topping === 'red-bean') extraPrice += 2;
-                if (topping === 'pudding') extraPrice += 3;
+                if (topping === 'pearl' || topping === 'grass-jelly' || topping === 'red-bean') extraPrice += 0.20;
+                if (topping === 'pudding') extraPrice += 0.30;
             });
             
             // 创建购物车项
@@ -1266,7 +1278,7 @@
             
             if (cart.length === 0) {
                 orderItemsContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">购物车为空，请添加商品</p>';
-                totalAmountElement.textContent = '¥0.00';
+                totalAmountElement.textContent = '$0.00';
                 localStorage.removeItem('currentCart');
                 return;
             }
@@ -1293,7 +1305,7 @@
                     <div class="item-details">
                         <div class="item-name">${item.name}</div>
                         <div class="item-options">${optionsText}</div>
-                        <div class="item-price">¥${item.price.toFixed(2)}/份</div>
+                        <div class="item-price">$${item.price.toFixed(2)}/份</div>
                     </div>
                     <div class="item-controls">
                         <button class="quantity-btn" data-index="${index}" data-action="decrease">-</button>
@@ -1331,7 +1343,7 @@
                 });
             });
             
-            totalAmountElement.textContent = `¥${total.toFixed(2)}`;
+            totalAmountElement.textContent = `$${total.toFixed(2)}`;
             localStorage.setItem('currentCart', JSON.stringify(cart));
         }
 
@@ -1386,7 +1398,7 @@
             
             order.items.forEach(item => {
                 const name = item.name.length > 6 ? item.name.substring(0, 6) + ".." : item.name;
-                printContent += `${name}    x${item.quantity}   ¥${item.totalPrice.toFixed(2)}\n`;
+                printContent += `${name}    x${item.quantity}   $${item.totalPrice.toFixed(2)}\n`;
                 
                 // 添加选项信息
                 if (item.options.size === 'large') printContent += "   大杯 ";
@@ -1406,7 +1418,7 @@
             
             printContent += `
 -----------------
-总计: ¥${order.total.toFixed(2)}
+总计: $${order.total.toFixed(2)}
 =================
 感谢惠顾！
             `.trim();
@@ -1467,7 +1479,7 @@
                 row.innerHTML = `
                     <td>${product.name}</td>
                     <td>${getCategoryDisplayText(product.category)}</td>
-                    <td>¥${product.price.toFixed(2)}</td>
+                    <td>$${product.price.toFixed(2)}</td>
                     <td>
                         <span style="color: ${product.status === 'active' ? 'var(--success)' : 'var(--danger)'};">
                             ${product.status === 'active' ? '上架' : '下架'}
