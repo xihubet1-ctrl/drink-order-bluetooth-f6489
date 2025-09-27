@@ -5,22 +5,95 @@
   <title>茶咖小馆 - 蓝牙打印点单系统</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial; margin: 20px; }
-    button { padding: 10px 20px; margin: 10px 0; }
+    body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 0; background: #f5f7fa; color: #333; }
+    header { background: linear-gradient(135deg, #8B4513, #D2691E); color: white; padding: 20px; text-align: center; }
+    .container { padding: 20px; }
+    .product { background: white; margin: 10px 0; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .product button { background: #D2691E; color: white; border: none; padding: 8px 12px; border-radius: 5px; }
+    .cart { background: white; padding: 15px; border-radius: 10px; margin-top: 20px; }
+    .cart-item { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    .total { font-weight: bold; font-size: 1.2em; margin-top: 10px; }
+    .print-btn { background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 1em; margin-top: 20px; width: 100%; }
   </style>
 </head>
 <body>
-  <h1>🧋 茶咖小馆 - 蓝牙打印点单系统</h1>
-  <p>选择商品 → 蓝牙打印小票</p>
 
-  <ul>
-    <li>珍珠奶茶 - ¥18</li>
-    <li>拿铁咖啡 - ¥28</li>
-    <li>芒果冰沙 - ¥24</li>
-  </ul>
+  <header>
+    <h1>🧋 茶咖小馆 - 蓝牙打印点单系统</h1>
+    <p>选择商品 → 加入购物车 → 蓝牙打印小票</p>
+  </header>
 
-  <button onclick="printViaBluetooth()">🖨 蓝牙打印</button>
+  <div class="container">
+    <h2>商品列表</h2>
+    <div class="product">
+      <span>🧋 珍珠奶茶 - ¥18</span>
+      <button onclick="addToCart('珍珠奶茶', 18)">加入购物车</button>
+    </div>
+    <div class="product">
+      <span>☕ 拿铁咖啡 - ¥28</span>
+      <button onclick="addToCart('拿铁咖啡', 28)">加入购物车</button>
+    </div>
+    <div class="product">
+      <span>🥭 芒果冰沙 - ¥24</span>
+      <button onclick="addToCart('芒果冰沙', 24)">加入购物车</button>
+    </div>
+
+    <div class="cart">
+      <h3>购物车</h3>
+      <div id="cart-items"></div>
+      <div class="total">总计：¥<span id="total">0</span></div>
+      <button class="print-btn" onclick="printOrder()">🖨 蓝牙打印小票</button>
+    </div>
+  </div>
 
   <script src="bluetooth-printer.js"></script>
+  <script>
+    let cart = [];
+
+    function addToCart(name, price) {
+      const existing = cart.find(item => item.name === name);
+      if (existing) {
+        existing.quantity++;
+      } else {
+        cart.push({ name, price, quantity: 1 });
+      }
+      renderCart();
+    }
+
+    function renderCart() {
+      const container = document.getElementById('cart-items');
+      container.innerHTML = '';
+      let total = 0;
+      cart.forEach((item, index) => {
+        total += item.price * item.quantity;
+        container.innerHTML += `
+          <div class="cart-item">
+            <span>${item.name} x${item.quantity}</span>
+            <span>¥${item.price * item.quantity}</span>
+            <button onclick="removeFromCart(${index})">删除</button>
+          </div>
+        `;
+      });
+      document.getElementById('total').textContent = total;
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      renderCart();
+    }
+
+    function printOrder() {
+      if (cart.length === 0) {
+        alert("购物车为空！");
+        return;
+      }
+      let receipt = "茶咖小馆\n订单小票\n------------------\n";
+      cart.forEach(item => {
+        receipt += `${item.name} x${item.quantity} = ¥${item.price * item.quantity}\n`;
+      });
+      receipt += "------------------\n总计：¥" + document.getElementById('total').textContent + "\n\n\n";
+      printReceipt(receipt);
+    }
+  </script>
 </body>
 </html>
