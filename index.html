@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>茶咖小馆 - 蓝牙打印点单系统</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    button { padding: 10px 20px; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <h1>🧋 茶咖小馆 - 蓝牙打印点单系统</h1>
+  <p>选择商品 → 蓝牙打印小票</p>
+
+  <ul>
+    <li>珍珠奶茶 - ¥18</li>
+    <li>拿铁咖啡 - ¥28</li>
+    <li>芒果冰沙 - ¥24</li>
+  </ul>
+
+  <button onclick="printViaBluetooth()">🖨 蓝牙打印</button>
+
+  <script src="bluetooth-printer.js"></script>
+</body>
+</html>
