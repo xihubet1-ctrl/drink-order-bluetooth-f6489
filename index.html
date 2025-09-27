@@ -1,1737 +1,661 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>茶咖小馆 - 智能收银系统</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #8B4513;
-            --secondary: #D2691E;
-            --accent: #A52A2A;
-            --light: #F5F5DC;
-            --dark: #3E2723;
-            --success: #28a745;
-            --info: #17a2b8;
-            --warning: #ffc107;
-            --danger: #dc3545;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Microsoft YaHei', sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-        
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-        }
-        
-        /* 侧边栏样式 */
-        .sidebar {
-            width: 250px;
-            background: linear-gradient(180deg, var(--primary) 0%, var(--dark) 100%);
-            color: white;
-            padding: 20px 0;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        }
-        
-        .logo {
-            padding: 0 20px 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 20px;
-        }
-        
-        .logo h1 {
-            font-size: 1.5rem;
-            margin-bottom: 5px;
-        }
-        
-        .logo p {
-            font-size: 0.8rem;
-            opacity: 0.8;
-        }
-        
-        .nav-menu {
-            list-style: none;
-        }
-        
-        .nav-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .nav-item:hover, .nav-item.active {
-            background-color: rgba(255,255,255,0.1);
-            border-left: 4px solid var(--secondary);
-        }
-        
-        .nav-item i {
-            width: 20px;
-            text-align: center;
-        }
-        
-        /* 主内容区域 */
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .page-title {
-            font-size: 1.8rem;
-            color: var(--dark);
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        /* 卡片样式 */
-        .card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .card-title {
-            font-size: 1.2rem;
-            color: var(--dark);
-        }
-        
-        /* 按钮样式 */
-        .btn {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
-            color: white;
-        }
-        
-        .btn-success {
-            background-color: var(--success);
-            color: white;
-        }
-        
-        .btn-info {
-            background-color: var(--info);
-            color: white;
-        }
-        
-        .btn-warning {
-            background-color: var(--warning);
-            color: white;
-        }
-        
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-        
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 0.85rem;
-        }
-        
-        /* 表格样式 */
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .table th, .table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .table th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-            color: var(--dark);
-        }
-        
-        .table tr:hover {
-            background-color: #f5f5f5;
-        }
-        
-        /* 表单样式 */
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: var(--dark);
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-        
-        .form-control:focus {
-            border-color: var(--secondary);
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(210, 105, 30, 0.2);
-        }
-        
-        /* 网格布局 */
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            margin: 0 -10px;
-        }
-        
-        .col {
-            flex: 1;
-            padding: 0 10px;
-            min-width: 300px;
-        }
-        
-        .col-2 {
-            flex: 2;
-            padding: 0 10px;
-        }
-        
-        .col-3 {
-            flex: 3;
-            padding: 0 10px;
-        }
-        
-        /* 页面样式 */
-        .page {
-            display: none;
-        }
-        
-        .page.active {
-            display: block;
-        }
-        
-        /* 商品网格 */
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-        }
-        
-        .product-card {
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid #eee;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        
-        .product-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-color: var(--secondary);
-        }
-        
-        .product-image {
-            width: 100%;
-            height: 120px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            background-color: #f0f0f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            color: var(--primary);
-        }
-        
-        .product-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .product-price {
-            color: var(--accent);
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-        
-        /* 订单区域 */
-        .order-section {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .order-items {
-            max-height: 400px;
-            overflow-y: auto;
-            margin-bottom: 15px;
-        }
-        
-        .order-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .item-details {
-            flex: 1;
-        }
-        
-        .item-name {
-            font-weight: bold;
-        }
-        
-        .item-options {
-            font-size: 0.85rem;
-            color: #666;
-        }
-        
-        .item-controls {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .quantity-btn {
-            width: 25px;
-            height: 25px;
-            border: 1px solid #ddd;
-            background: #f5f5f5;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        
-        .total-section {
-            display: flex;
-            justify-content: space-between;
-            font-size: 1.2rem;
-            font-weight: bold;
-            padding: 15px 0;
-            border-top: 2px solid #eee;
-        }
-        
-        /* 模态框 */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .modal-title {
-            font-size: 1.3rem;
-            color: var(--dark);
-        }
-        
-        .close-modal {
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #999;
-        }
-        
-        .modal-body {
-            padding: 20px;
-        }
-        
-        .modal-footer {
-            padding: 15px 20px;
-            border-top: 1px solid #eee;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-        
-        /* 选项按钮组 */
-        .option-group {
-            margin-bottom: 20px;
-        }
-        
-        .option-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: var(--dark);
-        }
-        
-        .option-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .option-btn {
-            padding: 8px 15px;
-            border: 1px solid #ddd;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .option-btn.selected {
-            background-color: var(--secondary);
-            color: white;
-            border-color: var(--secondary);
-        }
-        
-        /* 通知样式 */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            background: var(--success);
-            color: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            z-index: 1100;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .app-container {
-                flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                height: auto;
-            }
-            
-            .nav-menu {
-                display: flex;
-                overflow-x: auto;
-            }
-            
-            .nav-item {
-                white-space: nowrap;
-            }
-            
-            .col, .col-2, .col-3 {
-                flex: 100%;
-            }
-            
-            .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            }
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>茶咖小馆 - 智能收银系统</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root{--primary:#8B4513;--secondary:#D2691E;--accent:#A52A2A;--light:#F5F5DC;--dark:#3E2723;--success:#28a745;--info:#17a2b8;--warning:#ffc107;--danger:#dc3545}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Microsoft YaHei',sans-serif}
+  body{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);min-height:100vh;color:#333}
+  .app-container{display:flex;min-height:100vh}
+  .sidebar{width:250px;background:linear-gradient(180deg,var(--primary) 0%,var(--dark) 100%);color:#fff;padding:20px 0;box-shadow:2px 0 10px rgba(0,0,0,.1)}
+  .logo{padding:0 20px 20px;text-align:center;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:20px}
+  .logo h1{font-size:1.5rem;margin-bottom:5px}
+  .logo p{font-size:.8rem;opacity:.8}
+  .nav-menu{list-style:none}
+  .nav-item{padding:12px 20px;cursor:pointer;transition:.3s;display:flex;align-items:center;gap:10px}
+  .nav-item:hover,.nav-item.active{background-color:rgba(255,255,255,.1);border-left:4px solid var(--secondary)}
+  .nav-item i{width:20px;text-align:center}
+  .main-content{flex:1;padding:20px;overflow-y:auto}
+  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid #ddd}
+  .page-title{font-size:1.8rem;color:var(--dark)}
+  .user-info{display:flex;align-items:center;gap:10px}
+  .card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.05);margin-bottom:20px}
+  .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding-bottom:10px;border-bottom:1px solid #eee}
+  .card-title{font-size:1.2rem;color:var(--dark)}
+  .btn{padding:8px 15px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;transition:.2s;display:inline-flex;align-items:center;gap:5px}
+  .btn-primary{background:linear-gradient(135deg,var(--secondary) 0%,var(--primary) 100%);color:#fff}
+  .btn-success{background:var(--success);color:#fff}
+  .btn-info{background:var(--info);color:#fff}
+  .btn-warning{background:var(--warning);color:#fff}
+  .btn-danger{background:var(--danger);color:#fff}
+  .btn-secondary{background:#e5e7eb;color:#111}
+  .btn-sm{padding:5px 10px;font-size:.85rem}
+  .table{width:100%;border-collapse:collapse}
+  .table th,.table td{padding:12px 15px;text-align:left;border-bottom:1px solid #eee}
+  .table th{background:#f8f9fa;font-weight:700;color:var(--dark)}
+  .table tr:hover{background:#f5f5f5}
+  .form-group{margin-bottom:15px}
+  .form-label{display:block;margin-bottom:5px;font-weight:700;color:var(--dark)}
+  .form-control{width:100%;padding:10px;border:1px solid #ddd;border-radius:5px;font-size:1rem}
+  .form-control:focus{border-color:var(--secondary);outline:none;box-shadow:0 0 0 2px rgba(210,105,30,.2)}
+  .row{display:flex;flex-wrap:wrap;margin:0 -10px}
+  .col{flex:1;padding:0 10px;min-width:300px}
+  .col-2{flex:2;padding:0 10px}
+  .col-3{flex:3;padding:0 10px}
+  .page{display:none}.page.active{display:block}
+  .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:15px}
+  .product-card{background:#fff;border-radius:8px;padding:15px;text-align:center;cursor:pointer;transition:.2s;border:1px solid #eee;box-shadow:0 2px 5px rgba(0,0,0,.05)}
+  .product-card:hover{transform:translateY(-3px);box-shadow:0 5px 15px rgba(0,0,0,.1);border-color:var(--secondary)}
+  .product-image{width:100%;height:120px;border-radius:5px;margin-bottom:10px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:var(--primary)}
+  .product-name{font-weight:700;margin-bottom:5px}
+  .product-price{color:var(--accent);font-weight:700;font-size:1.1rem}
+  .order-section{background:#fff;border-radius:10px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+  .order-items{max-height:400px;overflow-y:auto;margin-bottom:15px}
+  .order-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee}
+  .item-details{flex:1}.item-name{font-weight:700}
+  .item-options{font-size:.85rem;color:#666}
+  .item-controls{display:flex;align-items:center;gap:5px}
+  .quantity-btn{width:25px;height:25px;border:1px solid #ddd;background:#f5f5f5;border-radius:3px;cursor:pointer}
+  .total-section{display:flex;justify-content:space-between;font-size:1.2rem;font-weight:700;padding:15px 0;border-top:2px solid #eee}
+  .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+  .modal-content{background:#fff;border-radius:10px;width:90%;max-width:640px;max-height:90vh;overflow-y:auto}
+  .modal-header{padding:15px 20px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center}
+  .modal-title{font-size:1.3rem;color:var(--dark)}.close-modal{font-size:1.5rem;cursor:pointer;color:#999}
+  .modal-body{padding:20px}.modal-footer{padding:15px 20px;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:10px}
+  .toast{position:fixed;right:16px;bottom:16px;background:#000;color:#fff;padding:10px 14px;border-radius:8px;opacity:.9;z-index:2000}
+  .muted{opacity:.6}
+  @media (max-width:768px){.app-container{flex-direction:column}.sidebar{width:100%;height:auto}.nav-menu{display:flex;overflow-x:auto}.nav-item{white-space:nowrap}.col,.col-2,.col-3{flex:100%}.products-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
+</style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- 侧边导航 -->
-        <div class="sidebar">
-            <div class="logo">
-                <h1><i class="fas fa-coffee"></i> 茶咖小馆</h1>
-                <p>智能收银系统 v2.0</p>
-            </div>
-            <ul class="nav-menu">
-                <li class="nav-item active" data-page="dashboard">
-                    <i class="fas fa-tachometer-alt"></i> 营业概览
-                </li>
-                <li class="nav-item" data-page="pos">
-                    <i class="fas fa-cash-register"></i> 点单收银
-                </li>
-                <li class="nav-item" data-page="products">
-                    <i class="fas fa-wine-bottle"></i> 商品管理
-                </li>
-                <li class="nav-item" data-page="orders">
-                    <i class="fas fa-receipt"></i> 订单管理
-                </li>
-                <li class="nav-item" data-page="members">
-                    <i class="fas fa-users"></i> 会员管理
-                </li>
-                <li class="nav-item" data-page="reports">
-                    <i class="fas fa-chart-bar"></i> 数据报表
-                </li>
-                <li class="nav-item" data-page="settings">
-                    <i class="fas fa-cog"></i> 系统设置
-                </li>
-            </ul>
-        </div>
-        
-        <!-- 主内容区域 -->
-        <div class="main-content">
-            <div class="header">
-                <h2 class="page-title" id="page-title">营业概览</h2>
-                <div class="user-info">
-                    <span>管理员</span>
-                    <button class="btn btn-sm btn-info" id="sync-data">
-                        <i class="fas fa-sync-alt"></i> 同步数据
-                    </button>
-                </div>
-            </div>
-            
-            <!-- 营业概览页面 -->
-            <div class="page active" id="dashboard">
-                <div class="row">
-                    <div class="col">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">今日营业情况</h3>
-                            </div>
-                            <div class="card-body">
-                                <div style="display: flex; justify-content: space-around; text-align: center;">
-                                    <div>
-                                        <h3 style="color: var(--accent);">¥1,258</h3>
-                                        <p>今日销售额</p>
-                                    </div>
-                                    <div>
-                                        <h3 style="color: var(--info);">42</h3>
-                                        <p>订单数量</p>
-                                    </div>
-                                    <div>
-                                        <h3 style="color: var(--success);">18</h3>
-                                        <p>会员消费</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">热销商品</h3>
-                            </div>
-                            <div class="card-body">
-                                <ol>
-                                    <li>珍珠奶茶 - 15杯</li>
-                                    <li>拿铁咖啡 - 12杯</li>
-                                    <li>水果茶 - 10杯</li>
-                                    <li>抹茶拿铁 - 8杯</li>
-                                    <li>芝士奶盖 - 7杯</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">最近订单</h3>
-                        <button class="btn btn-sm btn-primary">查看全部</button>
-                    </div>
-                    <div class="card-body">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>订单号</th>
-                                    <th>时间</th>
-                                    <th>商品</th>
-                                    <th>金额</th>
-                                    <th>状态</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>#20231115001</td>
-                                    <td>10:25</td>
-                                    <td>珍珠奶茶 x2</td>
-                                    <td>¥36.00</td>
-                                    <td><span style="color: var(--success);">已完成</span></td>
-                                </tr>
-                                <tr>
-                                    <td>#20231115002</td>
-                                    <td>10:42</td>
-                                    <td>拿铁咖啡 x1, 抹茶拿铁 x1</td>
-                                    <td>¥53.00</td>
-                                    <td><span style="color: var(--warning);">制作中</span></td>
-                                </tr>
-                                <tr>
-                                    <td>#20231115003</td>
-                                    <td>11:05</td>
-                                    <td>水果茶 x3</td>
-                                    <td>¥60.00</td>
-                                    <td><span style="color: var(--info);">待制作</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 点单收银页面 -->
-            <div class="page" id="pos">
-                <div class="row">
-                    <div class="col-3">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">商品分类</h3>
-                            </div>
-                            <div class="card-body">
-                                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
-                                    <button class="btn btn-sm btn-primary active category-filter" data-category="all">全部</button>
-                                    <button class="btn btn-sm btn-primary category-filter" data-category="milk-tea">奶茶</button>
-                                    <button class="btn btn-sm btn-primary category-filter" data-category="coffee">咖啡</button>
-                                    <button class="btn btn-sm btn-primary category-filter" data-category="fruit-tea">果茶</button>
-                                    <button class="btn btn-sm btn-primary category-filter" data-category="snack">小吃</button>
-                                </div>
-                                <div class="products-grid" id="pos-products">
-                                    <!-- 商品将通过JavaScript动态加载 -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="order-section">
-                            <div class="card-header">
-                                <h3 class="card-title">当前订单</h3>
-                                <div>
-                                    <span>订单号: <span id="current-order-id">#20231115004</span></span>
-                                </div>
-                            </div>
-                            <div class="order-items" id="order-items">
-                                <p style="text-align: center; padding: 20px; color: #999;">购物车为空，请添加商品</p>
-                            </div>
-                            <div class="total-section">
-                                <span>总计:</span>
-                                <span id="total-amount">¥0.00</span>
-                            </div>
-                            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                                <button class="btn btn-secondary" style="flex: 1;" id="hold-order">挂单</button>
-                                <button class="btn btn-danger" style="flex: 1;" id="clear-cart">清空</button>
-                                <button class="btn btn-success" style="flex: 2;" id="checkout-print">结账打印</button>
-                            </div>
-                        </div>
-                        
-                        <div class="card" style="margin-top: 20px;">
-                            <div class="card-header">
-                                <h3 class="card-title">会员信息</h3>
-                            </div>
-                            <div class="card-body">
-                                <div class="form-group">
-                                    <input type="text" class="form-control" placeholder="输入会员手机号或卡号" id="member-input">
-                                </div>
-                                <div style="display: flex; justify-content: space-between;">
-                                    <span id="current-member">当前会员: 无</span>
-                                    <span id="member-points">积分: 0</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 商品管理页面 -->
-            <div class="page" id="products">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">商品管理</h3>
-                        <button class="btn btn-primary" id="add-product">
-                            <i class="fas fa-plus"></i> 添加商品
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <table class="table" id="products-table">
-                            <thead>
-                                <tr>
-                                    <th>商品名称</th>
-                                    <th>分类</th>
-                                    <th>价格</th>
-                                    <th>状态</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody id="products-table-body">
-                                <!-- 商品数据将通过JavaScript动态加载 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 其他页面内容 -->
-            <div class="page" id="orders">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">订单管理</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>订单管理页面内容</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="page" id="members">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">会员管理</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>会员管理页面内容</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="page" id="reports">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">数据报表</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>数据报表页面内容</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="page" id="settings">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">系统设置</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>系统设置页面内容</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="app-container">
+  <!-- 侧边栏 -->
+  <div class="sidebar">
+    <div class="logo">
+      <h1><i class="fas fa-coffee"></i> 茶咖小馆</h1>
+      <p>智能收银系统 v2.2（适配 HPRT D35 蓝牙）</p>
+    </div>
+    <ul class="nav-menu">
+      <li class="nav-item active" data-page="dashboard"><i class="fas fa-tachometer-alt"></i> 营业概览</li>
+      <li class="nav-item" data-page="pos"><i class="fas fa-cash-register"></i> 点单收银</li>
+      <li class="nav-item" data-page="products"><i class="fas fa-wine-bottle"></i> 商品管理</li>
+      <li class="nav-item" data-page="orders"><i class="fas fa-receipt"></i> 订单管理</li>
+      <li class="nav-item" data-page="members"><i class="fas fa-users"></i> 会员管理</li>
+      <li class="nav-item" data-page="reports"><i class="fas fa-chart-bar"></i> 数据报表</li>
+      <li class="nav-item" data-page="settings"><i class="fas fa-cog"></i> 系统设置</li>
+    </ul>
+  </div>
+
+  <!-- 主区域 -->
+  <div class="main-content">
+    <div class="header">
+      <h2 class="page-title" id="page-title">营业概览</h2>
+      <div class="user-info">
+        <span>管理员</span>
+        <button class="btn btn-sm btn-info" id="sync-btn"><i class="fas fa-sync-alt"></i> 同步数据</button>
+      </div>
     </div>
 
-    <!-- 商品选项模态框 -->
-    <div class="modal" id="product-options-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="options-product-name">商品名称</h3>
-                <span class="close-modal">&times;</span>
+    <!-- 营业概览 -->
+    <div class="page active" id="dashboard">
+      <div class="row">
+        <div class="col">
+          <div class="card"><div class="card-header"><h3 class="card-title">今日营业情况</h3></div>
+            <div class="card-body">
+              <div style="display:flex;justify-content:space-around;text-align:center;">
+                <div><h3 style="color:var(--accent);" id="kpi-sales">¥0</h3><p>今日销售额</p></div>
+                <div><h3 style="color:var(--info);" id="kpi-orders">0</h3><p>订单数量</p></div>
+                <div><h3 style="color:var(--success);" id="kpi-members">0</h3><p>会员消费</p></div>
+              </div>
             </div>
-            <div class="modal-body">
-                <div class="option-group">
-                    <div class="option-title">杯型选择</div>
-                    <div class="option-buttons" id="size-options">
-                        <div class="option-btn" data-value="medium">中杯 (+¥0)</div>
-                        <div class="option-btn selected" data-value="large">大杯 (+¥3)</div>
-                    </div>
-                </div>
-                
-                <div class="option-group">
-                    <div class="option-title">温度选择</div>
-                    <div class="option-buttons" id="temp-options">
-                        <div class="option-btn selected" data-value="hot">热饮</div>
-                        <div class="option-btn" data-value="cold">冷饮</div>
-                        <div class="option-btn" data-value="ice">加冰</div>
-                    </div>
-                </div>
-                
-                <div class="option-group">
-                    <div class="option-title">甜度选择</div>
-                    <div class="option-buttons" id="sugar-options">
-                        <div class="option-btn" data-value="full">全糖</div>
-                        <div class="option-btn selected" data-value="normal">标准糖</div>
-                        <div class="option-btn" data-value="half">半糖</div>
-                        <div class="option-btn" data-value="less">少糖</div>
-                        <div class="option-btn" data-value="no">无糖</div>
-                    </div>
-                </div>
-                
-                <div class="option-group">
-                    <div class="option-title">加料选择 (可多选)</div>
-                    <div class="option-buttons" id="topping-options">
-                        <div class="option-btn" data-value="pearl">珍珠 (+¥2)</div>
-                        <div class="option-btn" data-value="pudding">布丁 (+¥3)</div>
-                        <div class="option-btn" data-value="grass-jelly">仙草 (+¥2)</div>
-                        <div class="option-btn" data-value="red-bean">红豆 (+¥2)</div>
-                    </div>
-                </div>
-                
-                <div class="option-group">
-                    <div class="option-title">数量</div>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <button class="quantity-btn" id="decrease-qty">-</button>
-                        <span id="product-quantity" style="font-size: 1.2rem; font-weight: bold; min-width: 30px; text-align: center;">1</span>
-                        <button class="quantity-btn" id="increase-qty">+</button>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancel-options">取消</button>
-                <button class="btn btn-primary" id="confirm-options">确认添加</button>
-            </div>
+          </div>
         </div>
+        <div class="col">
+          <div class="card"><div class="card-header"><h3 class="card-title">热销商品</h3></div>
+            <div class="card-body"><ol id="hot-list"><li>—</li></ol></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">最近订单</h3><button class="btn btn-sm btn-primary">查看全部</button></div>
+        <div class="card-body">
+          <table class="table">
+            <thead><tr><th>订单号</th><th>时间</th><th>商品</th><th>金额</th><th>状态</th></tr></thead>
+            <tbody id="recent-orders"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <!-- 添加商品模态框 -->
-    <div class="modal" id="product-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="product-modal-title">添加商品</h3>
-                <span class="close-modal">&times;</span>
+    <!-- POS -->
+    <div class="page" id="pos">
+      <div class="row">
+        <div class="col-3">
+          <div class="card">
+            <div class="card-header"><h3 class="card-title">商品分类</h3></div>
+            <div class="card-body">
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px;">
+                <button class="btn btn-sm btn-primary category-btn active" data-cat="all">全部</button>
+                <button class="btn btn-sm btn-primary category-btn" data-cat="milk-tea">奶茶</button>
+                <button class="btn btn-sm btn-primary category-btn" data-cat="coffee">咖啡</button>
+                <button class="btn btn-sm btn-primary category-btn" data-cat="fruit-tea">果茶</button>
+                <button class="btn btn-sm btn-primary category-btn" data-cat="snack">小吃</button>
+              </div>
+              <div class="products-grid" id="pos-products"></div>
             </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">商品名称</label>
-                    <input type="text" class="form-control" id="product-name" placeholder="请输入商品名称">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">商品分类</label>
-                    <select class="form-control" id="product-category">
-                        <option value="">请选择分类</option>
-                        <option value="milk-tea">奶茶</option>
-                        <option value="coffee">咖啡</option>
-                        <option value="fruit-tea">果茶</option>
-                        <option value="snack">小吃</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">价格</label>
-                    <input type="number" class="form-control" id="product-price" placeholder="0.00" step="0.01" min="0">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">商品描述</label>
-                    <textarea class="form-control" id="product-description" rows="3" placeholder="请输入商品描述"></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">商品状态</label>
-                    <div>
-                        <label><input type="radio" name="status" value="active" checked> 上架</label>
-                        <label><input type="radio" name="status" value="inactive"> 下架</label>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancel-product">取消</button>
-                <button class="btn btn-primary" id="save-product">保存</button>
-            </div>
+          </div>
         </div>
+        <div class="col">
+          <div class="order-section">
+            <div class="card-header">
+              <h3 class="card-title">当前订单</h3>
+              <div><span>订单号: <span id="current-order-no">—</span></span></div>
+            </div>
+            <div class="order-items" id="order-items">
+              <p style="text-align:center;padding:20px;color:#999;">购物车为空，请添加商品</p>
+            </div>
+            <div class="total-section">
+              <span>总计:</span><span id="total-amount">¥0.00</span>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:15px;">
+              <button class="btn btn-secondary" style="flex:1;" id="btn-hold">挂单</button>
+              <button class="btn btn-danger" style="flex:1;" id="btn-clear">清空</button>
+              <button class="btn btn-success" style="flex:2;" id="btn-checkout">结账打印</button>
+            </div>
+          </div>
+          <div class="card" style="margin-top:20px;">
+            <div class="card-header"><h3 class="card-title">会员信息</h3></div>
+            <div class="card-body">
+              <div class="form-group"><input type="text" class="form-control" placeholder="输入会员手机号或卡号"></div>
+              <div style="display:flex;justify-content:space-between;"><span>当前会员: 无</span><span>积分: 0</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <script>
-        // 数据存储
-        let products = JSON.parse(localStorage.getItem('products')) || [
-            { id: 1, name: "珍珠奶茶", price: 18, category: "milk-tea", icon: "🧋", status: "active" },
-            { id: 2, name: "拿铁咖啡", price: 28, category: "coffee", icon: "☕️", status: "active" },
-            { id: 3, name: "水果茶", price: 20, category: "fruit-tea", icon: "🍹", status: "active" },
-            { id: 4, name: "抹茶拿铁", price: 25, category: "milk-tea", icon: "🍵", status: "active" },
-            { id: 5, name: "芝士奶盖", price: 26, category: "special", icon: "🥤", status: "active" },
-            { id: 6, name: "柠檬绿茶", price: 18, category: "fruit-tea", icon: "🍋", status: "active" },
-            { id: 7, name: "卡布奇诺", price: 30, category: "coffee", icon: "☕️", status: "active" },
-            { id: 8, name: "芋圆奶茶", price: 22, category: "milk-tea", icon: "🍠", status: "active" }
-        ];
-        
-        let cart = JSON.parse(localStorage.getItem('currentCart')) || [];
-        let currentProduct = null;
-        let currentCategory = 'all';
-        let editingProductId = null;
+    <!-- 商品管理 -->
+    <div class="page" id="products">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">商品管理</h3>
+          <button class="btn btn-primary" id="add-product"><i class="fas fa-plus"></i> 添加商品</button>
+        </div>
+        <div class="card-body">
+          <table class="table">
+            <thead><tr><th>商品名称</th><th>分类</th><th>价格</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody id="products-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-        // DOM元素
-        const pageTitle = document.getElementById('page-title');
-        const syncDataBtn = document.getElementById('sync-data');
-        const categoryFilters = document.querySelectorAll('.category-filter');
-        const posProductsContainer = document.getElementById('pos-products');
-        const orderItemsContainer = document.getElementById('order-items');
-        const totalAmountElement = document.getElementById('total-amount');
-        const currentOrderIdElement = document.getElementById('current-order-id');
-        const holdOrderBtn = document.getElementById('hold-order');
-        const clearCartBtn = document.getElementById('clear-cart');
-        const checkoutPrintBtn = document.getElementById('checkout-print');
-        const memberInput = document.getElementById('member-input');
-        const currentMemberElement = document.getElementById('current-member');
-        const memberPointsElement = document.getElementById('member-points');
-        const addProductBtn = document.getElementById('add-product');
-        const productsTableBody = document.getElementById('products-table-body');
-        
-        // 模态框元素
-        const productOptionsModal = document.getElementById('product-options-modal');
-        const optionsProductName = document.getElementById('options-product-name');
-        const sizeOptions = document.getElementById('size-options');
-        const tempOptions = document.getElementById('temp-options');
-        const sugarOptions = document.getElementById('sugar-options');
-        const toppingOptions = document.getElementById('topping-options');
-        const decreaseQtyBtn = document.getElementById('decrease-qty');
-        const increaseQtyBtn = document.getElementById('increase-qty');
-        const productQuantityElement = document.getElementById('product-quantity');
-        const cancelOptionsBtn = document.getElementById('cancel-options');
-        const confirmOptionsBtn = document.getElementById('confirm-options');
-        
-        const productModal = document.getElementById('product-modal');
-        const productModalTitle = document.getElementById('product-modal-title');
-        const productNameInput = document.getElementById('product-name');
-        const productCategorySelect = document.getElementById('product-category');
-        const productPriceInput = document.getElementById('product-price');
-        const productDescriptionInput = document.getElementById('product-description');
-        const cancelProductBtn = document.getElementById('cancel-product');
-        const saveProductBtn = document.getElementById('save-product');
+    <!-- 订单/会员/报表占位 -->
+    <div class="page" id="orders"><div class="card"><div class="card-header"><h3 class="card-title">订单管理</h3></div><div class="card-body"><p>订单管理页面内容</p></div></div></div>
+    <div class="page" id="members"><div class="card"><div class="card-header"><h3 class="card-title">会员管理</h3></div><div class="card-body"><p>会员管理页面内容</p></div></div></div>
+    <div class="page" id="reports"><div class="card"><div class="card-header"><h3 class="card-title">数据报表</h3></div><div class="card-body"><p>数据报表页面内容</p></div></div></div>
+    <!-- 系统设置 -->
+    <div class="page" id="settings">
+      <div class="card">
+        <div class="card-header"><h3 class="card-title">打印机设置</h3></div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col">
+              <div class="form-group">
+                <label class="form-label">打印方式</label>
+                <div id="print-mode">
+                  <label><input type="radio" name="print-mode" value="usb" checked> USB/蓝牙（系统队列）</label>&nbsp;&nbsp;
+                  <label><input type="radio" name="print-mode" value="net"> 网络（IP 直连）</label>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        // 初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-        });
+          <div id="usb-fields" class="row">
+            <div class="col">
+              <div class="form-group">
+                <label class="form-label">系统打印机名称（队列名）</label>
+                <input id="printer-name" type="text" class="form-control" placeholder="如 HPRT D35">
+                <div class="muted" style="margin-top:6px;">Windows：控制面板→设备和打印机；macOS：系统设置→打印机与扫描仪</div>
+              </div>
+            </div>
+          </div>
 
-        function initializeApp() {
-            // 设置页面导航
-            setupNavigation();
-            
-            // 设置事件监听器
-            setupEventListeners();
-            
-            // 渲染初始数据
-            renderProducts();
-            updateOrderDisplay();
-            renderProductsTable();
-            
-            // 生成订单号
-            generateOrderId();
-        }
+          <div id="net-fields" class="row" style="display:none;">
+            <div class="col"><div class="form-group"><label class="form-label">打印机 IP</label><input id="printer-host" type="text" class="form-control" placeholder="如 192.168.1.50"></div></div>
+            <div class="col"><div class="form-group"><label class="form-label">端口</label><input id="printer-port" type="number" class="form-control" value="9100"></div></div>
+            <div class="col"><div class="form-group"><label class="form-label">编码</label>
+              <select id="printer-enc" class="form-control"><option value="utf8">UTF-8（推荐）</option><option value="gbk">GBK（旧机型）</option></select>
+            </div></div>
+          </div>
 
-        function setupNavigation() {
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    // 更新导航激活状态
-                    document.querySelectorAll('.nav-item').forEach(nav => {
-                        nav.classList.remove('active');
-                    });
-                    this.classList.add('active');
-                    
-                    // 显示对应页面
-                    const pageId = this.getAttribute('data-page');
-                    document.querySelectorAll('.page').forEach(page => {
-                        page.classList.remove('active');
-                    });
-                    document.getElementById(pageId).classList.add('active');
-                    
-                    // 更新页面标题
-                    pageTitle.textContent = this.textContent.trim();
-                    
-                    // 如果是商品管理页面，刷新表格
-                    if (pageId === 'products') {
-                        renderProductsTable();
-                    }
-                });
-            });
-        }
+          <div class="form-group"><label class="form-label">取餐口/备注（打印用）</label><input id="take-no" type="text" class="form-control" placeholder="前台 / 外带 / 1号口"></div>
 
-        function setupEventListeners() {
-            // 分类筛选
-            categoryFilters.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    categoryFilters.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    currentCategory = this.getAttribute('data-category');
-                    renderProducts();
-                });
-            });
-            
-            // 同步数据
-            syncDataBtn.addEventListener('click', function() {
-                showNotification('数据同步成功', 'success');
-            });
-            
-            // 挂单
-            holdOrderBtn.addEventListener('click', function() {
-                if (cart.length === 0) {
-                    showNotification('购物车为空，无法挂单', 'warning');
-                    return;
-                }
-                
-                const heldOrders = JSON.parse(localStorage.getItem('heldOrders')) || [];
-                heldOrders.push({
-                    id: currentOrderIdElement.textContent,
-                    items: [...cart],
-                    total: calculateTotal(),
-                    time: new Date().toLocaleTimeString()
-                });
-                
-                localStorage.setItem('heldOrders', JSON.stringify(heldOrders));
-                cart = [];
-                updateOrderDisplay();
-                generateOrderId();
-                showNotification('订单已挂起', 'success');
-            });
-            
-            // 清空购物车
-            clearCartBtn.addEventListener('click', function() {
-                if (cart.length === 0) return;
-                
-                if (confirm('确定要清空购物车吗？')) {
-                    cart = [];
-                    updateOrderDisplay();
-                    showNotification('购物车已清空', 'info');
-                }
-            });
-            
-            // 结账打印
-            checkoutPrintBtn.addEventListener('click', function() {
-                if (cart.length === 0) {
-                    showNotification('购物车为空，请添加商品', 'warning');
-                    return;
-                }
-                
-                // 创建订单
-                const order = {
-                    id: currentOrderIdElement.textContent,
-                    items: [...cart],
-                    total: calculateTotal(),
-                    timestamp: new Date().toLocaleString('zh-CN'),
-                    member: currentMemberElement.textContent.replace('当前会员: ', '')
-                };
-                
-                // 保存订单历史
-                const orderHistory = JSON.parse(localStorage.getItem('orderHistory')) || [];
-                orderHistory.push(order);
-                localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-                
-                // 打印订单
-                printOrder(order);
-                
-                // 清空购物车并生成新订单号
-                cart = [];
-                updateOrderDisplay();
-                generateOrderId();
-                
-                showNotification(`订单 ${order.id} 已结账并打印`, 'success');
-            });
-            
-                    // 会员输入
-            memberInput.addEventListener('input', function() {
-                const memberId = this.value.trim();
-                if (memberId) {
-                    // 模拟会员查询
-                    const members = JSON.parse(localStorage.getItem('members')) || [];
-                    const member = members.find(m => m.phone === memberId || m.card === memberId);
-                    
-                    if (member) {
-                        currentMemberElement.textContent = `当前会员: ${member.name}`;
-                        memberPointsElement.textContent = `积分: ${member.points}`;
-                    } else {
-                        currentMemberElement.textContent = '当前会员: 无';
-                        memberPointsElement.textContent = '积分: 0';
-                    }
-                } else {
-                    currentMemberElement.textContent = '当前会员: 无';
-                    memberPointsElement.textContent = '积分: 0';
-                }
-            });
-            
-            // 商品选项模态框事件
-            decreaseQtyBtn.addEventListener('click', function() {
-                let qty = parseInt(productQuantityElement.textContent);
-                if (qty > 1) {
-                    productQuantityElement.textContent = qty - 1;
-                }
-            });
-            
-            increaseQtyBtn.addEventListener('click', function() {
-                let qty = parseInt(productQuantityElement.textContent);
-                productQuantityElement.textContent = qty + 1;
-            });
-            
-            // 设置选项按钮事件
-            setupOptionButtons(sizeOptions);
-            setupOptionButtons(tempOptions);
-            setupOptionButtons(sugarOptions);
-            setupMultiSelectButtons(toppingOptions);
-            
-            cancelOptionsBtn.addEventListener('click', function() {
-                productOptionsModal.style.display = 'none';
-            });
-            
-            confirmOptionsBtn.addEventListener('click', function() {
-                addProductToCart();
-            });
-            
-            // 商品管理模态框事件
-            addProductBtn.addEventListener('click', function() {
-                openProductModal();
-            });
-            
-            cancelProductBtn.addEventListener('click', function() {
-                productModal.style.display = 'none';
-                resetProductForm();
-            });
-            
-            saveProductBtn.addEventListener('click', function() {
-                saveProduct();
-            });
-            
-            // 关闭模态框事件
-            document.querySelectorAll('.close-modal').forEach(closeBtn => {
-                closeBtn.addEventListener('click', function() {
-                    this.closest('.modal').style.display = 'none';
-                    if (this.closest('#product-modal')) {
-                        resetProductForm();
-                    }
-                });
-            });
-            
-            // 点击模态框外部关闭
-            window.addEventListener('click', function(event) {
-                if (event.target.classList.contains('modal')) {
-                    event.target.style.display = 'none';
-                    if (event.target.id === 'product-modal') {
-                        resetProductForm();
-                    }
-                }
-            });
-        }
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-primary" id="save-settings">保存设置</button>
+            <button class="btn btn-info" id="test-print"><i class="fa fa-print"></i> 测试打印</button>
+          </div>
+          <div class="muted" style="margin-top:8px;">
+            * USB/蓝牙模式需运行本地打印桥：<code>http://localhost:3021</code>（我已提供 zip）
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 商品编辑/新增 模态框 -->
+<div class="modal" id="product-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title" id="pm-title">添加商品</h3>
+      <span class="close-modal">&times;</span>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="pm-id"/>
+      <div class="form-group"><label class="form-label">商品名称</label><input id="pm-name" type="text" class="form-control" placeholder="请输入商品名称"></div>
+      <div class="form-group"><label class="form-label">商品分类</label>
+        <select id="pm-cat" class="form-control">
+          <option value="">请选择分类</option><option value="milk-tea">奶茶</option><option value="coffee">咖啡</option><option value="fruit-tea">果茶</option><option value="snack">小吃</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">价格</label><input id="pm-price" type="number" class="form-control" placeholder="0.00" step="0.01"></div>
+      <div class="form-group"><label class="form-label">图标/表情</label><input id="pm-icon" type="text" class="form-control" placeholder="如 🧋 / ☕"></div>
+      <div class="form-group"><label class="form-label">商品状态</label>
+        <div><label><input type="radio" name="pm-status" value="active" checked> 上架</label>&nbsp;&nbsp;<label><input type="radio" name="pm-status" value="inactive"> 下架</label></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary pm-cancel">取消</button>
+      <button class="btn btn-primary" id="pm-save">保存</button>
+    </div>
+  </div>
+</div>
 
-        function setupOptionButtons(container) {
-            const buttons = container.querySelectorAll('.option-btn');
-            buttons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // 如果是单选按钮组，取消其他选中
-                    if (!container.classList.contains('multi-select')) {
-                        buttons.forEach(b => b.classList.remove('selected'));
-                    }
-                    this.classList.toggle('selected');
-                });
-            });
-        }
+<!-- 规格选项 模态框（尺寸/甜度/冰量） -->
+<div class="modal" id="options-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">选择规格</h3>
+      <span class="close-modal">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">杯型</label>
+        <div id="opt-size">
+          <label><input type="radio" name="size" value="小杯" data-delta="0" checked> 小杯（+0）</label>&nbsp;&nbsp;
+          <label><input type="radio" name="size" value="中杯" data-delta="2"> 中杯（+2）</label>&nbsp;&nbsp;
+          <label><input type="radio" name="size" value="大杯" data-delta="4"> 大杯（+4）</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">甜度</label>
+        <div id="opt-sugar">
+          <label><input type="radio" name="sugar" value="无糖"> 无糖</label>&nbsp;&nbsp;
+          <label><input type="radio" name="sugar" value="少糖"> 少糖</label>&nbsp;&nbsp;
+          <label><input type="radio" name="sugar" value="标准糖" checked> 标准糖</label>&nbsp;&nbsp;
+          <label><input type="radio" name="sugar" value="多糖"> 多糖</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">冷热/冰量</label>
+        <div id="opt-ice">
+          <label><input type="radio" name="ice" value="热饮"> 热饮</label>&nbsp;&nbsp;
+          <label><input type="radio" name="ice" value="常温"> 常温</label>&nbsp;&nbsp;
+          <label><input type="radio" name="ice" value="去冰"> 去冰</label>&nbsp;&nbsp;
+          <label><input type="radio" name="ice" value="少冰"> 少冰</label>&nbsp;&nbsp;
+          <label><input type="radio" name="ice" value="正常冰" checked> 正常冰</label>&nbsp;&nbsp;
+          <label><input type="radio" name="ice" value="多冰"> 多冰</label>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">数量</label><input id="opt-qty" type="number" class="form-control" value="1" min="1"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary om-cancel">取消</button>
+      <button class="btn btn-primary" id="om-add">加入订单</button>
+    </div>
+  </div>
+</div>
 
-        function setupMultiSelectButtons(container) {
-            container.classList.add('multi-select');
-            const buttons = container.querySelectorAll('.option-btn');
-            buttons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    this.classList.toggle('selected');
-                });
-            });
-        }
+<div id="toast" class="toast" style="display:none;"></div>
+<script>
+/* -------------------- 简易状态 & 工具 -------------------- */
+const $ = (s, root=document) => root.querySelector(s);
+const $$ = (s, root=document) => Array.from(root.querySelectorAll(s));
+const toast = (msg, ms=1600) => { const t=$("#toast"); t.textContent=msg; t.style.display="block"; setTimeout(()=>t.style.display="none", ms); }
+const money = n => "¥"+(Number(n||0)).toFixed(2);
+const store = {
+  get(key, def){ try{ const v=localStorage.getItem(key); return v?JSON.parse(v):def }catch{ return def } },
+  set(key, val){ localStorage.setItem(key, JSON.stringify(val)) }
+};
 
-        function renderProducts() {
-            posProductsContainer.innerHTML = '';
-            
-            const filteredProducts = currentCategory === 'all' 
-                ? products.filter(p => p.status === 'active')
-                : products.filter(p => p.category === currentCategory && p.status === 'active');
-            
-            if (filteredProducts.length === 0) {
-                posProductsContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">该分类下暂无商品</p>';
-                return;
-            }
-            
-            filteredProducts.forEach(product => {
-                const productElement = document.createElement('div');
-                productElement.className = 'product-card';
-                productElement.innerHTML = `
-                    <div class="product-image">${product.icon}</div>
-                    <div class="product-name">${product.name}</div>
-                    <div class="product-price">¥${product.price.toFixed(2)}</div>
-                `;
-                
-                productElement.addEventListener('click', function() {
-                    openProductOptions(product);
-                });
-                
-                posProductsContainer.appendChild(productElement);
-            });
-        }
+/* -------------------- 数据 -------------------- */
+let products = store.get("pos-products-v1", [
+  { id: 1, name: "珍珠奶茶", price: 18, category: "milk-tea", icon: "🧋", status:"active" },
+  { id: 2, name: "拿铁咖啡", price: 28, category: "coffee", icon: "☕", status:"active" },
+  { id: 3, name: "水果茶", price: 20, category: "fruit-tea", icon: "🍹", status:"active" },
+  { id: 4, name: "抹茶拿铁", price: 25, category: "milk-tea", icon: "🍵", status:"active" },
+  { id: 5, name: "芝士奶盖", price: 26, category: "milk-tea", icon: "🥤", status:"active" },
+  { id: 6, name: "柠檬绿茶", price: 18, category: "fruit-tea", icon: "🍋", status:"active" },
+  { id: 7, name: "卡布奇诺", price: 30, category: "coffee", icon: "☕", status:"active" },
+  { id: 8, name: "芋圆奶茶", price: 22, category: "milk-tea", icon: "🍠", status:"active" }
+]);
+let cart = [];
+let filterCat = "all";
+let currentProduct = null;
 
-        function openProductOptions(product) {
-            currentProduct = product;
-            optionsProductName.textContent = product.name;
-            
-            // 重置选项
-            productQuantityElement.textContent = '1';
-            resetOptionButtons();
-            
-            productOptionsModal.style.display = 'flex';
-        }
+const settings = store.get("pos-settings", {
+  printMode: "usb",            // usb | net
+  printerName: "HPRT D35",     // USB/蓝牙模式用
+  printerHost: "",             // 网络模式用
+  printerPort: 9100,
+  printerEnc: "utf8",
+  takeNo: "前台"
+});
 
-        function resetOptionButtons() {
-            // 重置所有选项按钮
-            const allOptionButtons = document.querySelectorAll('.option-btn');
-            allOptionButtons.forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            
-            // 设置默认选中项
-            sizeOptions.querySelector('[data-value="large"]').classList.add('selected');
-            tempOptions.querySelector('[data-value="hot"]').classList.add('selected');
-            sugarOptions.querySelector('[data-value="normal"]').classList.add('selected');
-        }
+function nextOrderNo(){
+  const today = new Date();
+  const ymd = today.toISOString().slice(0,10).replace(/-/g,"");
+  const seqKey = "order-seq-"+ymd;
+  const n = (store.get(seqKey, 0) || 0) + 1;
+  store.set(seqKey, n);
+  return "A-"+String(n).padStart(3,"0");
+}
 
-        function addProductToCart() {
-            if (!currentProduct) return;
-            
-            // 获取选中的选项
-            const size = getSelectedOption(sizeOptions);
-            const temp = getSelectedOption(tempOptions);
-            const sugar = getSelectedOption(sugarOptions);
-            const toppings = getMultiSelectedOptions(toppingOptions);
-            const quantity = parseInt(productQuantityElement.textContent);
-            
-            // 计算加价
-            let extraPrice = 0;
-            if (size === 'large') extraPrice += 3;
-            
-            toppings.forEach(topping => {
-                if (topping === 'pearl' || topping === 'grass-jelly' || topping === 'red-bean') extraPrice += 2;
-                if (topping === 'pudding') extraPrice += 3;
-            });
-            
-            // 创建购物车项
-            const cartItem = {
-                id: currentProduct.id,
-                name: currentProduct.name,
-                basePrice: currentProduct.price,
-                price: currentProduct.price + extraPrice,
-                quantity: quantity,
-                options: {
-                    size: size,
-                    temp: temp,
-                    sugar: sugar,
-                    toppings: toppings
-                },
-                totalPrice: (currentProduct.price + extraPrice) * quantity
-            };
-            
-            // 检查是否已有相同选项的商品
-            const existingIndex = cart.findIndex(item => 
-                item.id === cartItem.id && 
-                JSON.stringify(item.options) === JSON.stringify(cartItem.options)
-            );
-            
-            if (existingIndex !== -1) {
-                cart[existingIndex].quantity += quantity;
-                cart[existingIndex].totalPrice = cart[existingIndex].price * cart[existingIndex].quantity;
-            } else {
-                cart.push(cartItem);
-            }
-            
-            // 更新显示并关闭模态框
-            updateOrderDisplay();
-            productOptionsModal.style.display = 'none';
-            showNotification(`${currentProduct.name} 已添加到购物车`, 'success');
-        }
+/* -------------------- 导航 -------------------- */
+$$('.nav-item').forEach(it=>{
+  it.addEventListener('click', ()=>{
+    $$('.nav-item').forEach(n=>n.classList.remove('active'));
+    it.classList.add('active');
+    const id = it.getAttribute('data-page');
+    $$('.page').forEach(p=>p.classList.remove('active'));
+    $("#"+id).classList.add('active');
+    $("#page-title").textContent = it.textContent.trim();
+  });
+});
 
-        function getSelectedOption(container) {
-            const selected = container.querySelector('.option-btn.selected');
-            return selected ? selected.getAttribute('data-value') : null;
-        }
+/* -------------------- POS 渲染 -------------------- */
+function renderProducts(){
+  const container = $("#pos-products"); container.innerHTML="";
+  products.filter(p => p.status==="active" && (filterCat==="all" || p.category===filterCat))
+    .forEach(p=>{
+      const el = document.createElement('div');
+      el.className="product-card";
+      el.innerHTML = `<div class="product-image">${p.icon||"🥤"}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-price">${money(p.price)}</div>`;
+      el.addEventListener('click', ()=>openOptions(p));
+      container.appendChild(el);
+    });
+}
 
-        function getMultiSelectedOptions(container) {
-            const selected = container.querySelectorAll('.option-btn.selected');
-            return Array.from(selected).map(btn => btn.getAttribute('data-value'));
-        }
+function updateCart(){
+  const container = $("#order-items");
+  const totalEl = $("#total-amount");
+  if(cart.length===0){
+    container.innerHTML = '<p style="text-align:center;padding:20px;color:#999;">购物车为空，请添加商品</p>';
+    totalEl.textContent = money(0); return;
+  }
+  container.innerHTML="";
+  let total=0;
+  cart.forEach((it, idx)=>{
+    const line = document.createElement('div');
+    line.className = 'order-item';
+    const opts = `${it.size} | ${it.ice} | ${it.sugar}`;
+    line.innerHTML = `
+      <div class="item-details">
+        <div class="item-name">${it.name}</div>
+        <div class="item-options">${opts}${it.deltaPrice?`（+${it.deltaPrice}）`:''}</div>
+      </div>
+      <div class="item-controls">
+        <button class="quantity-btn" data-i="${idx}" data-act="dec">-</button>
+        <span>${it.quantity}</span>
+        <button class="quantity-btn" data-i="${idx}" data-act="inc">+</button>
+        <button class="btn btn-sm btn-danger" data-i="${idx}" data-act="rm">删除</button>
+      </div>`;
+    container.appendChild(line);
+    total += (it.price + (it.deltaPrice||0)) * it.quantity;
+  });
+  totalEl.textContent = money(total);
 
-        function updateOrderDisplay() {
-            orderItemsContainer.innerHTML = '';
-            
-            if (cart.length === 0) {
-                orderItemsContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">购物车为空，请添加商品</p>';
-                totalAmountElement.textContent = '¥0.00';
-                localStorage.removeItem('currentCart');
-                return;
-            }
-            
-            let total = 0;
-            
-            cart.forEach((item, index) => {
-                const itemElement = document.createElement('div');
-                itemElement.className = 'order-item';
-                
-                // 构建选项文本
-                let optionsText = '';
-                if (item.options.size === 'large') optionsText += '大杯 ';
-                else optionsText += '中杯 ';
-                
-                optionsText += `${getOptionDisplayText('temp', item.options.temp)} `;
-                optionsText += `${getOptionDisplayText('sugar', item.options.sugar)}`;
-                
-                if (item.options.toppings.length > 0) {
-                    optionsText += ` 加: ${item.options.toppings.map(t => getOptionDisplayText('topping', t)).join(', ')}`;
-                }
-                
-                itemElement.innerHTML = `
-                    <div class="item-details">
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-options">${optionsText}</div>
-                        <div class="item-price">¥${item.price.toFixed(2)}/份</div>
-                    </div>
-                    <div class="item-controls">
-                        <button class="quantity-btn" data-index="${index}" data-action="decrease">-</button>
-                        <span style="margin: 0 10px; min-width: 20px; text-align: center;">${item.quantity}</span>
-                        <button class="quantity-btn" data-index="${index}" data-action="increase">+</button>
-                        <button class="btn btn-sm btn-danger" data-index="${index}" data-action="remove">删除</button>
-                    </div>
-                `;
-                
-                orderItemsContainer.appendChild(itemElement);
-                total += item.totalPrice;
-            });
-            
-            // 添加事件监听器
-            orderItemsContainer.querySelectorAll('.quantity-btn, .btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const index = parseInt(this.getAttribute('data-index'));
-                    const action = this.getAttribute('data-action');
-                    
-                    if (action === 'decrease') {
-                        if (cart[index].quantity > 1) {
-                            cart[index].quantity -= 1;
-                            cart[index].totalPrice = cart[index].price * cart[index].quantity;
-                        } else {
-                            cart.splice(index, 1);
-                        }
-                    } else if (action === 'increase') {
-                        cart[index].quantity += 1;
-                        cart[index].totalPrice = cart[index].price * cart[index].quantity;
-                    } else if (action === 'remove') {
-                        cart.splice(index, 1);
-                    }
-                    
-                    updateOrderDisplay();
-                });
-            });
-            
-            totalAmountElement.textContent = `¥${total.toFixed(2)}`;
-            localStorage.setItem('currentCart', JSON.stringify(cart));
-        }
+  $$('#order-items .quantity-btn, #order-items .btn-danger').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const i = Number(btn.getAttribute('data-i'));
+      const act = btn.getAttribute('data-act');
+      if(act==='dec'){ cart[i].quantity>1? cart[i].quantity-- : cart.splice(i,1); }
+      else if(act==='inc'){ cart[i].quantity++; }
+      else if(act==='rm'){ cart.splice(i,1); }
+      updateCart();
+    });
+  });
+}
 
-        function getOptionDisplayText(type, value) {
-            const texts = {
-                temp: {
-                    'hot': '热饮',
-                    'cold': '冷饮',
-                    'ice': '加冰'
-                },
-                sugar: {
-                    'full': '全糖',
-                    'normal': '标准糖',
-                    'half': '半糖',
-                    'less': '少糖',
-                    'no': '无糖'
-                },
-                topping: {
-                    'pearl': '珍珠',
-                    'pudding': '布丁',
-                    'grass-jelly': '仙草',
-                    'red-bean': '红豆'
-                }
-            };
-            
-            return texts[type] ? texts[type][value] || value : value;
-        }
+/* 分类过滤 */
+$$('.category-btn').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    $$('.category-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    filterCat = b.getAttribute('data-cat');
+    renderProducts();
+  });
+});
 
-        function calculateTotal() {
-            return cart.reduce((total, item) => total + item.totalPrice, 0);
-        }
+/* -------------------- 规格选项 -------------------- */
+function openOptions(product){
+  currentProduct = product;
+  $("#opt-qty").value = 1;
+  $$("input[name='size']").forEach(r=>r.checked = r.value==="大杯");
+  $$("input[name='sugar']").forEach(r=>r.checked = r.value==="标准糖");
+  $$("input[name='ice']").forEach(r=>r.checked = r.value==="正常冰");
+  $("#options-modal").style.display = "flex";
+}
+$$('#options-modal .close-modal, #options-modal .om-cancel').forEach(el=>{
+  el.addEventListener('click', ()=> $("#options-modal").style.display="none");
+});
+$("#om-add").addEventListener('click', ()=>{
+  if(!currentProduct) return;
+  const size = $("input[name='size']:checked").value;
+  const delta = Number($("input[name='size']:checked").dataset.delta||0);
+  const sugar = $("input[name='sugar']:checked").value;
+  const ice = $("input[name='ice']:checked").value;
+  const qty = Math.max(1, Number($("#opt-qty").value||1));
+  cart.push({ id: currentProduct.id, name: currentProduct.name, price: currentProduct.price, deltaPrice: delta, size, sugar, ice, quantity: qty });
+  $("#options-modal").style.display="none";
+  updateCart();
+});
+/* -------------------- 打印实现（USB/蓝牙 & 网络分流） -------------------- */
+async function printLabelUSB(item, orderNo){
+  const printerName = ($("#printer-name").value || settings.printerName || "").trim();
+  if(!printerName) throw new Error("请填写【系统打印机名称】（如 HPRT D35）");
+  const body = {
+    printerName,
+    data: {
+      orderNo,
+      drinkName: item.name,
+      size: item.size,
+      sugar: item.sugar,
+      ice: item.ice,
+      addons: "",
+      takeNo: $("#take-no").value || settings.takeNo || "前台",
+      ts: new Date().toLocaleTimeString()
+    }
+  };
+  const res = await fetch("http://localhost:3021/print-usb", {
+    method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body)
+  });
+  const j = await res.json();
+  if(!j.ok) throw new Error(j.error || "USB/蓝牙打印失败");
+}
 
-        function generateOrderId() {
-            const now = new Date();
-            const dateStr = now.toISOString().slice(0,10).replace(/-/g, '');
-            const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-            currentOrderIdElement.textContent = `#${dateStr}${randomNum}`;
-        }
+async function printLabelNET(item, orderNo){
+  const host = $("#printer-host").value || settings.printerHost;
+  const port = Number($("#printer-port").value || settings.printerPort || 9100);
+  const enc = $("#printer-enc").value || settings.printerEnc || "utf8";
+  if(!host) throw new Error("请填写【打印机 IP】或切换到 USB/蓝牙模式");
+  const body = {
+    printer: { host, port },
+    labelLang: "TSPL",
+    template: "tspl_drink_40x30",
+    data: {
+      orderNo,
+      drinkName: item.name,
+      size: item.size,
+      sugar: item.sugar,
+      ice: item.ice,
+      addons: "",
+      takeNo: $("#take-no").value || settings.takeNo || "前台",
+      ts: new Date().toLocaleTimeString()
+    },
+    encoding: enc
+  };
+  const res = await fetch("http://localhost:3020/print", {
+    method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(body)
+  });
+  const j = await res.json();
+  if(!j.ok) throw new Error(j.error || "网络打印失败");
+}
 
-        function printOrder(order) {
-            // 构建打印内容
-            let printContent = `
-=================
-   茶咖小馆
-=================
-订单号: ${order.id}
-时间: ${order.timestamp}
------------------
-商品名称   数量  金额
------------------
-            `.trim() + "\n";
-            
-            order.items.forEach(item => {
-                const name = item.name.length > 6 ? item.name.substring(0, 6) + ".." : item.name;
-                printContent += `${name}    x${item.quantity}   ¥${item.totalPrice.toFixed(2)}\n`;
-                
-                // 添加选项信息
-                if (item.options.size === 'large') printContent += "   大杯 ";
-                else printContent += "   中杯 ";
-                
-                printContent += `${getOptionDisplayText('temp', item.options.temp)} ${getOptionDisplayText('sugar', item.options.sugar)}\n`;
-                
-                if (item.options.toppings.length > 0) {
-                    printContent += "   加: ";
-                    item.options.toppings.forEach((t, i) => {
-                        printContent += getOptionDisplayText('topping', t);
-                        if (i < item.options.toppings.length - 1) printContent += ',';
-                    });
-                    printContent += "\n";
-                }
-            });
-            
-            printContent += `
------------------
-总计: ¥${order.total.toFixed(2)}
-=================
-感谢惠顾！
-            `.trim();
-            
-            // 在实际应用中，这里应该调用汉印D35打印API
-            // 以下是模拟打印
-            console.log("打印内容:", printContent);
-            
-            // 创建打印预览窗口
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>打印预览 - ${order.id}</title>
-                        <style>
-                            body { 
-                                font-family: 'Courier New', monospace; 
-                                font-size: 14px; 
-                                line-height: 1.4;
-                                margin: 0;
-                                padding: 20px;
-                            }
-                            @media print {
-                                body { margin: 0; }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <pre>${printContent}</pre>
-                        <script>
-                            setTimeout(() => {
-                                window.print();
-                                setTimeout(() => window.close(), 500);
-                            }, 500);
-                        </script>
-                    </body>
-                </html>
-            `);
-            printWindow.document.close();
-        }
+async function printOne(item, orderNo){
+  const mode = $$("input[name='print-mode']").find(r=>r.checked)?.value || settings.printMode || "usb";
+  if(mode === "net") return printLabelNET(item, orderNo);
+  return printLabelUSB(item, orderNo);
+}
 
-        function renderProductsTable() {
-            productsTableBody.innerHTML = '';
-            
-            if (products.length === 0) {
-                productsTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="5" style="text-align: center; padding: 20px; color: #999;">
-                            暂无商品数据，请添加商品
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            products.forEach(product => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${product.name}</td>
-                    <td>${getCategoryDisplayText(product.category)}</td>
-                    <td>¥${product.price.toFixed(2)}</td>
-                    <td>
-                        <span style="color: ${product.status === 'active' ? 'var(--success)' : 'var(--danger)'};">
-                            ${product.status === 'active' ? '上架' : '下架'}
-                        </span>
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-info edit-product" data-id="${product.id}">编辑</button>
-                        <button class="btn btn-sm btn-danger delete-product" data-id="${product.id}">删除</button>
-                    </td>
-                `;
-                
-                productsTableBody.appendChild(row);
-            });
-            
-            // 添加编辑和删除事件
-            document.querySelectorAll('.edit-product').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const productId = parseInt(this.getAttribute('data-id'));
-                    openProductModal(productId);
-                });
-            });
-            
-            document.querySelectorAll('.delete-product').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const productId = parseInt(this.getAttribute('data-id'));
-                    deleteProduct(productId);
-                });
-            });
-        }
+/* 结账打印 */
+$("#btn-checkout").addEventListener('click', async ()=>{
+  if(cart.length===0){ return toast("购物车为空"); }
+  const orderNo = nextOrderNo();
+  $("#current-order-no").textContent = orderNo;
+  try{
+    for(const it of cart){
+      for(let k=0;k<it.quantity;k++){ await printOne(it, orderNo); }
+    }
+    toast("已结账并发送打印");
+    const total = cart.reduce((s,it)=> s + (it.price+(it.deltaPrice||0))*it.quantity, 0);
+    $("#kpi-orders").textContent = (Number($("#kpi-orders").textContent)||0) + 1;
+    $("#kpi-sales").textContent = money( Number($("#kpi-sales").textContent.replace(/[¥,]/g,'')||0) + total );
+    const itemsText = cart.map(it=> `${it.name}×${it.quantity}`).join("，");
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>#${orderNo}</td><td>${new Date().toTimeString().slice(0,5)}</td><td>${itemsText}</td><td>${money(total)}</td><td><span style="color:var(--success);">已完成</span></td>`;
+    $("#recent-orders").prepend(tr);
+    cart = []; updateCart();
+  }catch(e){
+    console.error(e); toast(e.message || "打印失败，请检查本地打印桥是否运行");
+  }
+});
 
-        function getCategoryDisplayText(category) {
-            const categories = {
-                'milk-tea': '奶茶',
-                'coffee': '咖啡',
-                'fruit-tea': '果茶',
-                'snack': '小吃',
-                'special': '特色'
-            };
-            return categories[category] || category;
-        }
+/* -------------------- 商品管理 CRUD -------------------- */
+function openProductModal(mode="add", prod=null){
+  $("#pm-title").textContent = mode==="edit" ? "编辑商品" : "添加商品";
+  $("#pm-id").value = prod?.id || "";
+  $("#pm-name").value = prod?.name || "";
+  $("#pm-cat").value = prod?.category || "";
+  $("#pm-price").value = prod?.price ?? "";
+  $("#pm-icon").value = prod?.icon || "🥤";
+  const st = prod?.status || "active";
+  $$("input[name='pm-status']").forEach(r=> r.checked = (r.value===st));
+  $("#product-modal").style.display="flex";
+}
+$("#add-product").addEventListener('click', ()=> openProductModal("add"));
+$$('#product-modal .close-modal, #product-modal .pm-cancel').forEach(el=>{
+  el.addEventListener('click', ()=> $("#product-modal").style.display="none");
+});
+$("#pm-save").addEventListener('click', ()=>{
+  const id = $("#pm-id").value;
+  const p = {
+    id: id? Number(id): (products.length? Math.max(...products.map(x=>x.id))+1:1),
+    name: $("#pm-name").value.trim(),
+    category: $("#pm-cat").value,
+    price: Number($("#pm-price").value || 0),
+    icon: $("#pm-icon").value || "🥤",
+    status: $$("input[name='pm-status']").find(r=>r.checked)?.value || "active"
+  };
+  if(!p.name || !p.category){ return toast("请填写完整信息"); }
+  if(id){ const i = products.findIndex(x=> String(x.id)===String(id)); if(i>=0) products[i]=p; }
+  else{ products.push(p); }
+  store.set("pos-products-v1", products);
+  $("#product-modal").style.display="none";
+  renderProductTable(); renderProducts(); toast("已保存");
+});
 
-        function openProductModal(productId = null) {
-            editingProductId = productId;
-            
-            if (productId) {
-                // 编辑模式
-                productModalTitle.textContent = '编辑商品';
-                const product = products.find(p => p.id === productId);
-                
-                if (product) {
-                    productNameInput.value = product.name;
-                    productCategorySelect.value = product.category;
-                    productPriceInput.value = product.price;
-                    productDescriptionInput.value = product.description || '';
-                    
-                    // 设置状态
-                    document.querySelectorAll('input[name="status"]').forEach(radio => {
-                        radio.checked = radio.value === product.status;
-                    });
-                }
-            } else {
-                // 添加模式
-                productModalTitle.textContent = '添加商品';
-                resetProductForm();
-            }
-            
-            productModal.style.display = 'flex';
-        }
+function renderProductTable(){
+  const tb = $("#products-tbody"); tb.innerHTML="";
+  products.forEach(p=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${p.name}</td><td>${catName(p.category)}</td><td>${money(p.price)}</td>
+      <td><span style="color:${p.status==='active'?'var(--success)':'var(--danger)'};">${p.status==='active'?'上架':'下架'}</span></td>
+      <td>
+        <button class="btn btn-sm btn-info btn-edit" data-id="${p.id}">编辑</button>
+        <button class="btn btn-sm btn-danger btn-del" data-id="${p.id}">${p.status==='active'?'下架':'删除'}</button>
+      </td>`;
+    tb.appendChild(tr);
+  });
+  $$('#products-tbody .btn-edit').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const p = products.find(x=> String(x.id)===b.dataset.id);
+      openProductModal("edit", p);
+    });
+  });
+  $$('#products-tbody .btn-del').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const i = products.findIndex(x=> String(x.id)===b.dataset.id);
+      if(i>=0){
+        if(products[i].status==='active'){ products[i].status='inactive'; }
+        else{ products.splice(i,1); }
+        store.set("pos-products-v1", products);
+        renderProductTable(); renderProducts();
+      }
+    });
+  });
+}
+function catName(c){ return ({'milk-tea':'奶茶','coffee':'咖啡','fruit-tea':'果茶','snack':'小吃'})[c] || c; }
 
-        function resetProductForm() {
-            productNameInput.value = '';
-            productCategorySelect.value = '';
-            productPriceInput.value = '';
-            productDescriptionInput.value = '';
-            document.querySelector('input[name="status"][value="active"]').checked = true;
-            editingProductId = null;
-        }
+/* -------------------- 设置 -------------------- */
+function applyModeVisibility(){
+  const mode = $$("input[name='print-mode']").find(r=>r.checked)?.value || "usb";
+  $("#usb-fields").style.display = (mode==="usb") ? "flex" : "none";
+  $("#net-fields").style.display = (mode==="net") ? "flex" : "none";
+}
+function initSettingsForm(){
+  $$("input[name='print-mode']").forEach(r=> r.checked = (r.value===settings.printMode));
+  $("#printer-name").value = settings.printerName || "HPRT D35";
+  $("#printer-host").value = settings.printerHost || "";
+  $("#printer-port").value = settings.printerPort || 9100;
+  $("#printer-enc").value = settings.printerEnc || "utf8";
+  $("#take-no").value = settings.takeNo || "前台";
+  applyModeVisibility();
+  $$("input[name='print-mode']").forEach(r=> r.addEventListener('change', applyModeVisibility));
+}
+$("#save-settings").addEventListener('click', ()=>{
+  settings.printMode = $$("input[name='print-mode']").find(r=>r.checked)?.value || "usb";
+  settings.printerName = $("#printer-name").value.trim();
+  settings.printerHost = $("#printer-host").value.trim();
+  settings.printerPort = Number($("#printer-port").value||9100);
+  settings.printerEnc = $("#printer-enc").value || "utf8";
+  settings.takeNo = $("#take-no").value || "前台";
+  store.set("pos-settings", settings);
+  toast("设置已保存");
+});
+$("#test-print").addEventListener('click', async ()=>{
+  try{
+    const dummy = { id:0, name:"测试标签", price:0, size:"L", sugar:"标准糖", ice:"正常冰", quantity:1 };
+    await printOne(dummy, "TEST-"+String(Math.random()).slice(2,6));
+    toast("测试打印已发送");
+  }catch(e){ console.error(e); toast(e.message||"测试打印失败"); }
+});
 
-        function saveProduct() {
-            // 验证表单
-            if (!productNameInput.value.trim()) {
-                showNotification('请输入商品名称', 'warning');
-                return;
-            }
-            
-            if (!productCategorySelect.value) {
-                showNotification('请选择商品分类', 'warning');
-                return;
-            }
-            
-            if (!productPriceInput.value || parseFloat(productPriceInput.value) <= 0) {
-                showNotification('请输入有效的价格', 'warning');
-                return;
-            }
-            
-            const status = document.querySelector('input[name="status"]:checked').value;
-            
-            if (editingProductId) {
-                // 编辑现有商品
-                const productIndex = products.findIndex(p => p.id === editingProductId);
-                if (productIndex !== -1) {
-                    products[productIndex] = {
-                        ...products[productIndex],
-                        name: productNameInput.value.trim(),
-                        category: productCategorySelect.value,
-                        price: parseFloat(productPriceInput.value),
-                        description: productDescriptionInput.value.trim(),
-                        status: status
-                    };
-                }
-            } else {
-                // 添加新商品
-                const newProduct = {
-                    id: Math.max(...products.map(p => p.id), 0) + 1,
-                    name: productNameInput.value.trim(),
-                    category: productCategorySelect.value,
-                    price: parseFloat(productPriceInput.value),
-                    description: productDescriptionInput.value.trim(),
-                    status: status,
-                    icon: getDefaultIcon(productCategorySelect.value)
-                };
-                products.push(newProduct);
-            }
-            
-            // 保存到本地存储
-            localStorage.setItem('products', JSON.stringify(products));
-            
-            // 更新界面
-            renderProductsTable();
-            if (document.getElementById('pos').classList.contains('active')) {
-                renderProducts();
-            }
-            
-            // 关闭模态框
-            productModal.style.display = 'none';
-            resetProductForm();
-            
-            showNotification(editingProductId ? '商品已更新' : '商品已添加', 'success');
-        }
-
-        function getDefaultIcon(category) {
-            const icons = {
-                'milk-tea': '🧋',
-                'coffee': '☕️',
-                'fruit-tea': '🍹',
-                'snack': '🍪',
-                'special': '⭐️'
-            };
-            return icons[category] || '📦';
-        }
-
-        function deleteProduct(productId) {
-            if (!confirm('确定要删除这个商品吗？此操作不可恢复。')) {
-                return;
-            }
-            
-            const productIndex = products.findIndex(p => p.id === productId);
-            if (productIndex !== -1) {
-                products.splice(productIndex, 1);
-                localStorage.setItem('products', JSON.stringify(products));
-                renderProductsTable();
-                
-                if (document.getElementById('pos').classList.contains('active')) {
-                    renderProducts();
-                }
-                
-                showNotification('商品已删除', 'success');
-            }
-        }
-
-        function showNotification(message, type = 'info') {
-            // 移除现有的通知
-            const existingNotification = document.querySelector('.notification');
-            if (existingNotification) {
-                existingNotification.remove();
-            }
-            
-            // 创建新通知
-            const notification = document.createElement('div');
-            notification.className = 'notification';
-            notification.innerHTML = `
-                <i class="fas fa-${getNotificationIcon(type)}"></i>
-                <span>${message}</span>
-            `;
-            
-            // 设置背景色
-            const bgColor = {
-                'success': 'var(--success)',
-                'warning': 'var(--warning)',
-                'error': 'var(--danger)',
-                'info': 'var(--info)'
-            }[type] || 'var(--info)';
-            
-            notification.style.backgroundColor = bgColor;
-            
-            document.body.appendChild(notification);
-            
-            // 3秒后自动移除
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.remove();
-                }
-            }, 3000);
-        }
-
-        function getNotificationIcon(type) {
-            const icons = {
-                'success': 'check-circle',
-                'warning': 'exclamation-triangle',
-                'error': 'times-circle',
-                'info': 'info-circle'
-            };
-            return icons[type] || 'info-circle';
-        }
-
-        // 初始化示例会员数据
-        function initializeSampleData() {
-            if (!localStorage.getItem('members')) {
-                const sampleMembers = [
-                    { id: 1, name: '张三', phone: '13800138000', card: 'VIP001', points: 150 },
-                    { id: 2, name: '李四', phone: '13900139000', card: 'VIP002', points: 80 }
-                ];
-                localStorage.setItem('members', JSON.stringify(sampleMembers));
-            }
-            
-            if (!localStorage.getItem('orderHistory')) {
-                const sampleOrders = [
-                    {
-                        id: '#20231115001',
-                        items: [
-                            { id: 1, name: "珍珠奶茶", price: 18, quantity: 2, totalPrice: 36 }
-                        ],
-                        total: 36,
-                        timestamp: '2023-11-15 10:25:00',
-                        member: '张三'
-                    }
-                ];
-                localStorage.setItem('orderHistory', JSON.stringify(sampleOrders));
-            }
-        }
-
-        // 初始化示例数据
-        initializeSampleData();
-    </script>
+/* -------------------- 初始化 -------------------- */
+function init(){
+  renderProducts();
+  renderProductTable();
+  initSettingsForm();
+  $("#current-order-no").textContent = nextOrderNo();
+  updateCart();
+  $("#kpi-sales").textContent = money(0); $("#kpi-orders").textContent = "0"; $("#hot-list").innerHTML="<li>—</li>";
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
 </body>
 </html>
