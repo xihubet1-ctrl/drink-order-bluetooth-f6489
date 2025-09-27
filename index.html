@@ -2,53 +2,116 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>茶咖小馆 - 蓝牙打印点单系统</title>
+  <title>茶咖小馆 Pro - 基础收银系统</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 0; background: #f5f7fa; color: #333; }
-    header { background: linear-gradient(135deg, #8B4513, #D2691E); color: white; padding: 20px; text-align: center; }
+    body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 0; background: #f5f7fa; }
+    header { background: linear-gradient(135deg, #8B4513, #D2691E); color: white; padding: 15px; text-align: center; }
     .container { padding: 20px; }
-    .product { background: white; margin: 10px 0; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
-    .product button { background: #D2691E; color: white; border: none; padding: 8px 12px; border-radius: 5px; }
-    .cart { background: white; padding: 15px; border-radius: 10px; margin-top: 20px; }
+    .section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+    .product { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .cart-item { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    .btn { background: #D2691E; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+    .print-btn { background: #28a745; width: 100%; padding: 12px; font-size: 1em; margin-top: 10px; }
+    input, select { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; }
     .total { font-weight: bold; font-size: 1.2em; margin-top: 10px; }
-    .print-btn { background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 1em; margin-top: 20px; width: 100%; }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>🧋 茶咖小馆 - 蓝牙打印点单系统</h1>
-    <p>选择商品 → 加入购物车 → 蓝牙打印小票</p>
+    <h1>🧋 茶咖小馆 Pro - 基础收银系统</h1>
   </header>
 
   <div class="container">
-    <h2>商品列表</h2>
-    <div class="product">
-      <span>🧋 珍珠奶茶 - ¥18</span>
-      <button onclick="addToCart('珍珠奶茶', 18)">加入购物车</button>
-    </div>
-    <div class="product">
-      <span>☕ 拿铁咖啡 - ¥28</span>
-      <button onclick="addToCart('拿铁咖啡', 28)">加入购物车</button>
-    </div>
-    <div class="product">
-      <span>🥭 芒果冰沙 - ¥24</span>
-      <button onclick="addToCart('芒果冰沙', 24)">加入购物车</button>
+
+    <!-- 商品管理 -->
+    <div class="section">
+      <h3>商品管理</h3>
+      <input type="text" id="productName" placeholder="商品名称">
+      <input type="number" id="productPrice" placeholder="价格（元）">
+      <select id="productCategory">
+        <option>奶茶</option>
+        <option>咖啡</option>
+        <option>果茶</option>
+      </select>
+      <button class="btn" onclick="addProduct()">添加商品</button>
+      <div id="productList"></div>
     </div>
 
-    <div class="cart">
-      <h3>购物车</h3>
-      <div id="cart-items"></div>
+    <!-- 点单收银 -->
+    <div class="section">
+      <h3>点单收银</h3>
+      <div id="menu"></div>
       <div class="total">总计：¥<span id="total">0</span></div>
-      <button class="print-btn" onclick="printOrder()">🖨 蓝牙打印小票</button>
+      <button class="print-btn" onclick="printOrder()">🖨 打印小票</button>
     </div>
+
   </div>
 
-  <script src="bluetooth-printer.js"></script>
   <script>
+    // 数据存储
+    let products = JSON.parse(localStorage.getItem('products')) || [];
     let cart = [];
+
+    // 初始化
+    window.onload = function () {
+      renderProducts();
+      renderMenu();
+    };
+
+    // 商品管理
+    function addProduct() {
+      const name = document.getElementById('productName').value.trim();
+      const price = parseFloat(document.getElementById('productPrice').value);
+      const category = document.getElementById('productCategory').value;
+      if (!name || isNaN(price) || price <= 0) return alert("请输入完整信息");
+      products.push({ name, price, category });
+      localStorage.setItem('products', JSON.stringify(products));
+      renderProducts();
+      renderMenu();
+      clearInputs();
+    }
+
+    function renderProducts() {
+      const list = document.getElementById('productList');
+      list.innerHTML = '';
+      products.forEach((p, i) => {
+        list.innerHTML += `
+          <div class="product">
+            <span>${p.name} (${p.category}) - ¥${p.price}</span>
+            <button class="btn" onclick="deleteProduct(${i})">删除</button>
+          </div>
+        `;
+      });
+    }
+
+    function deleteProduct(index) {
+      products.splice(index, 1);
+      localStorage.setItem('products', JSON.stringify(products));
+      renderProducts();
+      renderMenu();
+    }
+
+    function clearInputs() {
+      document.getElementById('productName').value = '';
+      document.getElementById('productPrice').value = '';
+    }
+
+    // 点单收银
+    function renderMenu() {
+      const menu = document.getElementById('menu');
+      menu.innerHTML = '';
+      products.forEach(p => {
+        menu.innerHTML += `
+          <div class="product">
+            <span>${p.name} - ¥${p.price}</span>
+            <button class="btn" onclick="addToCart('${p.name}', ${p.price})">+</button>
+          </div>
+        `;
+      });
+      renderCart();
+    }
 
     function addToCart(name, price) {
       const existing = cart.find(item => item.name === name);
@@ -61,32 +124,32 @@
     }
 
     function renderCart() {
-      const container = document.getElementById('cart-items');
-      container.innerHTML = '';
+      const cartDiv = document.getElementById('menu');
       let total = 0;
+      let cartHtml = '<h4>购物车</h4>';
       cart.forEach((item, index) => {
         total += item.price * item.quantity;
-        container.innerHTML += `
+        cartHtml += `
           <div class="cart-item">
             <span>${item.name} x${item.quantity}</span>
             <span>¥${item.price * item.quantity}</span>
-            <button onclick="removeFromCart(${index})">删除</button>
+            <button class="btn" onclick="removeFromCart(${index})">删除</button>
           </div>
         `;
       });
+      cartHtml += `<div class="total">总计：¥${total}</div>`;
+      cartDiv.innerHTML += cartHtml;
       document.getElementById('total').textContent = total;
     }
 
     function removeFromCart(index) {
       cart.splice(index, 1);
-      renderCart();
+      renderMenu();
     }
 
+    // 打印
     function printOrder() {
-      if (cart.length === 0) {
-        alert("购物车为空！");
-        return;
-      }
+      if (cart.length === 0) return alert("购物车为空！");
       let receipt = "茶咖小馆\n订单小票\n------------------\n";
       cart.forEach(item => {
         receipt += `${item.name} x${item.quantity} = ¥${item.price * item.quantity}\n`;
@@ -95,5 +158,6 @@
       printReceipt(receipt);
     }
   </script>
+  <script src="bluetooth-printer.js"></script>
 </body>
 </html>
