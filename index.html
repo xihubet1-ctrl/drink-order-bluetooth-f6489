@@ -1,196 +1,959 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <title>茶咖小馆 Pro - 基础收银系统</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: "Helvetica Neue", Arial, sans-serif; margin: 0; padding: 0; background: #f5f7fa; }
-    header { background: linear-gradient(135deg, #8B4513, #D2691E); color: white; padding: 15px; text-align: center; }
-    .container { padding: 20px; }
-    .section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-    .product { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .options { margin: 5px 0; font-size: 0.9em; }
-    .cart-item { display: flex; justify-content: space-between; margin-bottom: 10px; }
-    .btn { background: #D2691E; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
-    .print-btn { background: #28a745; width: 100%; padding: 12px; font-size: 1em; margin-top: 10px; }
-    select { margin: 3px; padding: 5px; font-size: 0.9em; }
-    .total { font-weight: bold; font-size: 1.2em; margin-top: 10px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>茶咖小馆 - 智能收银系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8B4513;
+            --secondary: #D2691E;
+            --accent: #A52A2A;
+            --light: #F5F5DC;
+            --dark: #3E2723;
+            --success: #28a745;
+            --info: #17a2b8;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 侧边栏样式 */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--dark) 100%);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            padding: 0 20px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .logo p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background-color: rgba(255,255,255,0.1);
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .page-title {
+            font-size: 1.8rem;
+            color: var(--dark);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-info {
+            background-color: var(--info);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
+        
+        /* 表格样式 */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th, .table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(210, 105, 30, 0.2);
+        }
+        
+        /* 网格布局 */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        
+        .col {
+            flex: 1;
+            padding: 0 10px;
+            min-width: 300px;
+        }
+        
+        .col-2 {
+            flex: 2;
+            padding: 0 10px;
+        }
+        
+        .col-3 {
+            flex: 3;
+            padding: 0 10px;
+        }
+        
+        /* 页面样式 */
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        /* 商品网格 */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: var(--secondary);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 120px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+        
+        .product-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .product-price {
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        /* 订单区域 */
+        .order-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .order-items {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .item-details {
+            flex: 1;
+        }
+        
+        .item-name {
+            font-weight: bold;
+        }
+        
+        .item-options {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .item-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .quantity-btn {
+            width: 25px;
+            height: 25px;
+            border: 1px solid #ddd;
+            background: #f5f5f5;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .total-section {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 15px 0;
+            border-top: 2px solid #eee;
+        }
+        
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.3rem;
+            color: var(--dark);
+        }
+        
+        .close-modal {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+            }
+            
+            .nav-item {
+                white-space: nowrap;
+            }
+            
+            .col, .col-2, .col-3 {
+                flex: 100%;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
 </head>
 <body>
-
-  <header>
-    <h1>🧋 茶咖小馆 Pro - 基础收银系统</h1>
-  </header>
-
-  <div class="container">
-
-    <!-- 商品管理 -->
-    <div class="section">
-      <h3>商品管理</h3>
-      <input type="text" id="productName" placeholder="商品名称">
-      <input type="number" id="productPrice" placeholder="价格（美元）">
-      <select id="productCategory">
-        <option>奶茶</option>
-        <option>咖啡</option>
-        <option>果茶</option>
-      </select>
-      <button class="btn" onclick="addProduct()">添加商品</button>
-      <div id="productList"></div>
+    <div class="app-container">
+        <!-- 侧边导航 -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1><i class="fas fa-coffee"></i> 茶咖小馆</h1>
+                <p>智能收银系统 v2.0</p>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i> 营业概览
+                </li>
+                <li class="nav-item" data-page="pos">
+                    <i class="fas fa-cash-register"></i> 点单收银
+                </li>
+                <li class="nav-item" data-page="products">
+                    <i class="fas fa-wine-bottle"></i> 商品管理
+                </li>
+                <li class="nav-item" data-page="orders">
+                    <i class="fas fa-receipt"></i> 订单管理
+                </li>
+                <li class="nav-item" data-page="members">
+                    <i class="fas fa-users"></i> 会员管理
+                </li>
+                <li class="nav-item" data-page="reports">
+                    <i class="fas fa-chart-bar"></i> 数据报表
+                </li>
+                <li class="nav-item" data-page="settings">
+                    <i class="fas fa-cog"></i> 系统设置
+                </li>
+            </ul>
+        </div>
+        
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <div class="header">
+                <h2 class="page-title" id="page-title">营业概览</h2>
+                <div class="user-info">
+                    <span>管理员</span>
+                    <button class="btn btn-sm btn-info">
+                        <i class="fas fa-sync-alt"></i> 同步数据
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 营业概览页面 -->
+            <div class="page active" id="dashboard">
+                <div class="row">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">今日营业情况</h3>
+                            </div>
+                            <div class="card-body">
+                                <div style="display: flex; justify-content: space-around; text-align: center;">
+                                    <div>
+                                        <h3 style="color: var(--accent);">¥1,258</h3>
+                                        <p>今日销售额</p>
+                                    </div>
+                                    <div>
+                                        <h3 style="color: var(--info);">42</h3>
+                                        <p>订单数量</p>
+                                    </div>
+                                    <div>
+                                        <h3 style="color: var(--success);">18</h3>
+                                        <p>会员消费</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">热销商品</h3>
+                            </div>
+                            <div class="card-body">
+                                <ol>
+                                    <li>珍珠奶茶 - 15杯</li>
+                                    <li>拿铁咖啡 - 12杯</li>
+                                    <li>水果茶 - 10杯</li>
+                                    <li>抹茶拿铁 - 8杯</li>
+                                    <li>芝士奶盖 - 7杯</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">最近订单</h3>
+                        <button class="btn btn-sm btn-primary">查看全部</button>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>订单号</th>
+                                    <th>时间</th>
+                                    <th>商品</th>
+                                    <th>金额</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#20231115001</td>
+                                    <td>10:25</td>
+                                    <td>珍珠奶茶 x2</td>
+                                    <td>¥36.00</td>
+                                    <td><span style="color: var(--success);">已完成</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#20231115002</td>
+                                    <td>10:42</td>
+                                    <td>拿铁咖啡 x1, 抹茶拿铁 x1</td>
+                                    <td>¥53.00</td>
+                                    <td><span style="color: var(--warning);">制作中</span></td>
+                                </tr>
+                                <tr>
+                                    <td>#20231115003</td>
+                                    <td>11:05</td>
+                                    <td>水果茶 x3</td>
+                                    <td>¥60.00</td>
+                                    <td><span style="color: var(--info);">待制作</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 点单收银页面 -->
+            <div class="page" id="pos">
+                <div class="row">
+                    <div class="col-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">商品分类</h3>
+                            </div>
+                            <div class="card-body">
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+                                    <button class="btn btn-sm btn-primary active">全部</button>
+                                    <button class="btn btn-sm btn-primary">奶茶</button>
+                                    <button class="btn btn-sm btn-primary">咖啡</button>
+                                    <button class="btn btn-sm btn-primary">果茶</button>
+                                    <button class="btn btn-sm btn-primary">小吃</button>
+                                </div>
+                                <div class="products-grid" id="pos-products">
+                                    <!-- 商品将通过JavaScript动态加载 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="order-section">
+                            <div class="card-header">
+                                <h3 class="card-title">当前订单</h3>
+                                <div>
+                                    <span>订单号: #20231115004</span>
+                                </div>
+                            </div>
+                            <div class="order-items" id="order-items">
+                                <p style="text-align: center; padding: 20px; color: #999;">购物车为空，请添加商品</p>
+                            </div>
+                            <div class="total-section">
+                                <span>总计:</span>
+                                <span id="total-amount">¥0.00</span>
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                <button class="btn btn-secondary" style="flex: 1;">挂单</button>
+                                <button class="btn btn-danger" style="flex: 1;">清空</button>
+                                <button class="btn btn-success" style="flex: 2;">结账打印</button>
+                            </div>
+                        </div>
+                        
+                        <div class="card" style="margin-top: 20px;">
+                            <div class="card-header">
+                                <h3 class="card-title">会员信息</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" placeholder="输入会员手机号或卡号">
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>当前会员: 无</span>
+                                    <span>积分: 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 商品管理页面 -->
+            <div class="page" id="products">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">商品管理</h3>
+                        <button class="btn btn-primary" id="add-product">
+                            <i class="fas fa-plus"></i> 添加商品
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>商品名称</th>
+                                    <th>分类</th>
+                                    <th>价格</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>珍珠奶茶</td>
+                                    <td>奶茶</td>
+                                    <td>¥18.00</td>
+                                    <td><span style="color: var(--success);">上架</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info">编辑</button>
+                                        <button class="btn btn-sm btn-danger">删除</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>拿铁咖啡</td>
+                                    <td>咖啡</td>
+                                    <td>¥28.00</td>
+                                    <td><span style="color: var(--success);">上架</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info">编辑</button>
+                                        <button class="btn btn-sm btn-danger">删除</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>水果茶</td>
+                                    <td>果茶</td>
+                                    <td>¥20.00</td>
+                                    <td><span style="color: var(--success);">上架</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info">编辑</button>
+                                        <button class="btn btn-sm btn-danger">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 其他页面内容类似，此处省略 -->
+            <div class="page" id="orders">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">订单管理</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>订单管理页面内容</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="page" id="members">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">会员管理</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>会员管理页面内容</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="page" id="reports">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">数据报表</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>数据报表页面内容</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="page" id="settings">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">系统设置</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>系统设置页面内容</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- 点单收银 -->
-    <div class="section">
-      <h3>点单收银</h3>
-      <div id="menu"></div>
-      <div class="total">总计：$<span id="total">0</span></div>
-      <button class="print-btn" onclick="printOrder()">🖨 打印小票</button>
+    <!-- 添加商品模态框 -->
+    <div class="modal" id="product-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">添加商品</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">商品名称</label>
+                    <input type="text" class="form-control" placeholder="请输入商品名称">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">商品分类</label>
+                    <select class="form-control">
+                        <option value="">请选择分类</option>
+                        <option value="milk-tea">奶茶</option>
+                        <option value="coffee">咖啡</option>
+                        <option value="fruit-tea">果茶</option>
+                        <option value="snack">小吃</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">价格</label>
+                    <input type="number" class="form-control" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">商品描述</label>
+                    <textarea class="form-control" rows="3" placeholder="请输入商品描述"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">商品状态</label>
+                    <div>
+                        <label><input type="radio" name="status" checked> 上架</label>
+                        <label><input type="radio" name="status"> 下架</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary">取消</button>
+                <button class="btn btn-primary">保存</button>
+            </div>
+        </div>
     </div>
 
-  </div>
-
-  <script>
-    let products = JSON.parse(localStorage.getItem('products')) || [];
-    let cart = [];
-
-    window.onload = function () {
-      renderProducts();
-      renderMenu();
-    };
-
-    function addProduct() {
-      const name = document.getElementById('productName').value.trim();
-      const price = parseFloat(document.getElementById('productPrice').value);
-      const category = document.getElementById('productCategory').value;
-      if (!name || isNaN(price) || price <= 0) return alert("请输入完整信息");
-      products.push({ name, price, category });
-      localStorage.setItem('products', JSON.stringify(products));
-      renderProducts();
-      renderMenu();
-      clearInputs();
-    }
-
-    function renderProducts() {
-      const list = document.getElementById('productList');
-      list.innerHTML = '';
-      products.forEach((p, i) => {
-        list.innerHTML += `
-          <div class="product">
-            <span>${p.name} (${p.category}) - $${p.price.toFixed(2)}</span>
-            <button class="btn" onclick="deleteProduct(${i})">删除</button>
-          </div>
-        `;
-      });
-    }
-
-    function deleteProduct(index) {
-      products.splice(index, 1);
-      localStorage.setItem('products', JSON.stringify(products));
-      renderProducts();
-      renderMenu();
-    }
-
-    function clearInputs() {
-      document.getElementById('productName').value = '';
-      document.getElementById('productPrice').value = '';
-    }
-
-    function renderMenu() {
-      const menu = document.getElementById('menu');
-      menu.innerHTML = '';
-      products.forEach(p => {
-        menu.innerHTML += `
-          <div class="section">
-            <div class="product">
-              <span>${p.name} - $${p.price.toFixed(2)}</span>
-              <button class="btn" onclick="showOptions('${p.name}', ${p.price})">+</button>
-            </div>
-            <div id="options-${p.name}" style="display:none;" class="options">
-              杯型：
-              <select id="size-${p.name}">
-                <option value="0">小杯</option>
-                <option value="0.5">中杯</option>
-                <option value="1">大杯</option>
-              </select><br>
-              冰度：
-              <select id="ice-${p.name}">
-                <option value="正常冰">正常冰</option>
-                <option value="少冰">少冰</option>
-                <option value="无冰">无冰</option>
-                <option value="热">热</option>
-              </select><br>
-              糖度：
-              <select id="sugar-${p.name}">
-                <option value="正常糖">正常糖</option>
-                <option value="少糖">少糖</option>
-                <option value="半糖">半糖</option>
-                <option value="无糖">无糖</option>
-              </select><br>
-              温度：
-              <select id="temp-${p.name}">
-                <option value="冷">冷</option>
-                <option value="热">热</option>
-              </select><br>
-              <button class="btn" onclick="addToCart('${p.name}', ${p.price}, '${p.name}')">确认加入</button>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    function showOptions(name) {
-      const div = document.getElementById(`options-${name}`);
-      div.style.display = div.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function addToCart(name, basePrice, key) {
-      const size = parseFloat(document.getElementById(`size-${key}`).value);
-      const ice = document.getElementById(`ice-${key}`).value;
-      const sugar = document.getElementById(`sugar-${key}`).value;
-      const temp = document.getElementById(`temp-${key}`).value;
-      const finalPrice = (basePrice + size).toFixed(2);
-      const options = { size: size === 0 ? '小杯' : size === 0.5 ? '中杯' : '大杯', ice, sugar, temp };
-      const itemName = `${name} (${options.size}, ${options.ice}, ${options.sugar}, ${options.temp})`;
-      cart.push({ name: itemName, price: parseFloat(finalPrice), quantity: 1 });
-      renderCart();
-      alert("已加入购物车！");
-    }
-
-    function renderCart() {
-      const cartDiv = document.getElementById('menu');
-      let total = 0;
-      let cartHtml = '<h4>购物车</h4>';
-      cart.forEach((item, index) => {
-        total += item.price * item.quantity;
-        cartHtml += `
-          <div class="cart-item">
-            <span>${item.name} x${item.quantity}</span>
-            <span>$${item.price.toFixed(2)}</span>
-            <button class="btn" onclick="removeFromCart(${index})">删除</button>
-          </div>
-        `;
-      });
-      cartHtml += `<div class="total">总计：$${total.toFixed(2)}</div>`;
-      cartDiv.innerHTML += cartHtml;
-      document.getElementById('total').textContent = total.toFixed(2);
-    }
-
-    function removeFromCart(index) {
-      cart.splice(index, 1);
-      renderMenu();
-    }
-
-    function printOrder() {
-      if (cart.length === 0) return alert("购物车为空！");
-      let receipt = "Tea & Coffee Shop\nReceipt\n------------------\n";
-      cart.forEach(item => {
-        receipt += `${item.name} x${item.quantity} = $${(item.price * item.quantity).toFixed(2)}\n`;
-      });
-      receipt += "------------------\nTotal: $" + document.getElementById('total').textContent + "\n\n\n";
-      printReceipt(receipt);
-    }
-  </script>
-  <script src="bluetooth-printer.js"></script>
+    <script>
+        // 页面导航功能
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 更新导航激活状态
+                document.querySelectorAll('.nav-item').forEach(nav => {
+                    nav.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // 显示对应页面
+                const pageId = this.getAttribute('data-page');
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                document.getElementById(pageId).classList.add('active');
+                
+                // 更新页面标题
+                document.getElementById('page-title').textContent = this.textContent.trim();
+            });
+        });
+        
+        // 模态框控制
+        document.getElementById('add-product').addEventListener('click', function() {
+            document.getElementById('product-modal').style.display = 'flex';
+        });
+        
+        document.querySelectorAll('.close-modal').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                this.closest('.modal').style.display = 'none';
+            });
+        });
+        
+        // 点击模态框外部关闭
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        });
+        
+        // 示例商品数据
+        const products = [
+            { id: 1, name: "珍珠奶茶", price: 18, category: "milk-tea", icon: "🧋" },
+            { id: 2, name: "拿铁咖啡", price: 28, category: "coffee", icon: "☕" },
+            { id: 3, name: "水果茶", price: 20, category: "fruit-tea", icon: "🍹" },
+            { id: 4, name: "抹茶拿铁", price: 25, category: "milk-tea", icon: "🍵" },
+            { id: 5, name: "芝士奶盖", price: 26, category: "special", icon: "🥤" },
+            { id: 6, name: "柠檬绿茶", price: 18, category: "fruit-tea", icon: "🍋" },
+            { id: 7, name: "卡布奇诺", price: 30, category: "coffee", icon: "☕" },
+            { id: 8, name: "芋圆奶茶", price: 22, category: "milk-tea", icon: "🍠" }
+        ];
+        
+        // 渲染商品到点单页面
+        function renderProducts() {
+            const container = document.getElementById('pos-products');
+            container.innerHTML = '';
+            
+            products.forEach(product => {
+                const productElement = document.createElement('div');
+                productElement.className = 'product-card';
+                productElement.innerHTML = `
+                    <div class="product-image">${product.icon}</div>
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">¥${product.price.toFixed(2)}</div>
+                `;
+                
+                productElement.addEventListener('click', function() {
+                    addToCart(product);
+                });
+                
+                container.appendChild(productElement);
+            });
+        }
+        
+        // 购物车功能
+        let cart = [];
+        
+        function addToCart(product) {
+            // 简化版，实际应打开选项模态框
+            const existingItem = cart.find(item => item.id === product.id);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    quantity: 1,
+                    options: {
+                        size: '大杯',
+                        ice: '正常冰',
+                        sugar: '标准糖'
+                    }
+                });
+            }
+            
+            updateOrderDisplay();
+        }
+        
+        function updateOrderDisplay() {
+            const container = document.getElementById('order-items');
+            const totalElement = document.getElementById('total-amount');
+            
+            if (cart.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 20px; color: #999;">购物车为空，请添加商品</p>';
+                totalElement.textContent = '¥0.00';
+                return;
+            }
+            
+            container.innerHTML = '';
+            let total = 0;
+            
+            cart.forEach((item, index) => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'order-item';
+                itemElement.innerHTML = `
+                    <div class="item-details">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-options">${item.options.size} | ${item.options.ice} | ${item.options.sugar}</div>
+                    </div>
+                    <div class="item-controls">
+                        <button class="quantity-btn" data-index="${index}" data-action="decrease">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="quantity-btn" data-index="${index}" data-action="increase">+</button>
+                        <button class="btn btn-sm btn-danger" data-index="${index}" data-action="remove">删除</button>
+                    </div>
+                `;
+                
+                container.appendChild(itemElement);
+                total += item.price * item.quantity;
+            });
+            
+            // 添加事件监听器
+            container.querySelectorAll('.quantity-btn, .btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    const action = this.getAttribute('data-action');
+                    
+                    if (action === 'decrease') {
+                        if (cart[index].quantity > 1) {
+                            cart[index].quantity -= 1;
+                        } else {
+                            cart.splice(index, 1);
+                        }
+                    } else if (action === 'increase') {
+                        cart[index].quantity += 1;
+                    } else if (action === 'remove') {
+                        cart.splice(index, 1);
+                    }
+                    
+                    updateOrderDisplay();
+                });
+            });
+            
+            totalElement.textContent = `¥${total.toFixed(2)}`;
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProducts();
+        });
+    </script>
 </body>
 </html>
