@@ -1,4 +1,4 @@
-async function printViaBluetooth() {
+async function printReceipt(content) {
   try {
     const device = await navigator.bluetooth.requestDevice({
       filters: [{ namePrefix: 'D35' }],
@@ -10,7 +10,7 @@ async function printViaBluetooth() {
     const characteristic = await service.getCharacteristic('49535343-8841-43f4-a8d4-ecbe34729bb3');
 
     const encoder = new TextEncoder();
-    const data = encoder.encode("茶咖小馆\n订单：珍珠奶茶 x1\n总计：¥18\n\n\n");
+    const data = encoder.encode(content);
     await characteristic.writeValue(data);
 
     alert("✅ 蓝牙打印成功！");
