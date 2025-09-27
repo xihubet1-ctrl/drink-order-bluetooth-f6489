@@ -10,10 +10,11 @@
     .container { padding: 20px; }
     .section { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
     .product { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .options { margin: 5px 0; font-size: 0.9em; }
     .cart-item { display: flex; justify-content: space-between; margin-bottom: 10px; }
     .btn { background: #D2691E; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
     .print-btn { background: #28a745; width: 100%; padding: 12px; font-size: 1em; margin-top: 10px; }
-    input, select { padding: 8px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+    select { margin: 3px; padding: 5px; font-size: 0.9em; }
     .total { font-weight: bold; font-size: 1.2em; margin-top: 10px; }
   </style>
 </head>
@@ -29,7 +30,7 @@
     <div class="section">
       <h3>商品管理</h3>
       <input type="text" id="productName" placeholder="商品名称">
-      <input type="number" id="productPrice" placeholder="价格（元）">
+      <input type="number" id="productPrice" placeholder="价格（美元）">
       <select id="productCategory">
         <option>奶茶</option>
         <option>咖啡</option>
@@ -43,24 +44,21 @@
     <div class="section">
       <h3>点单收银</h3>
       <div id="menu"></div>
-      <div class="total">总计：¥<span id="total">0</span></div>
+      <div class="total">总计：$<span id="total">0</span></div>
       <button class="print-btn" onclick="printOrder()">🖨 打印小票</button>
     </div>
 
   </div>
 
   <script>
-    // 数据存储
     let products = JSON.parse(localStorage.getItem('products')) || [];
     let cart = [];
 
-    // 初始化
     window.onload = function () {
       renderProducts();
       renderMenu();
     };
 
-    // 商品管理
     function addProduct() {
       const name = document.getElementById('productName').value.trim();
       const price = parseFloat(document.getElementById('productPrice').value);
@@ -79,7 +77,7 @@
       products.forEach((p, i) => {
         list.innerHTML += `
           <div class="product">
-            <span>${p.name} (${p.category}) - ¥${p.price}</span>
+            <span>${p.name} (${p.category}) - $${p.price.toFixed(2)}</span>
             <button class="btn" onclick="deleteProduct(${i})">删除</button>
           </div>
         `;
@@ -98,29 +96,65 @@
       document.getElementById('productPrice').value = '';
     }
 
-    // 点单收银
     function renderMenu() {
       const menu = document.getElementById('menu');
       menu.innerHTML = '';
       products.forEach(p => {
         menu.innerHTML += `
-          <div class="product">
-            <span>${p.name} - ¥${p.price}</span>
-            <button class="btn" onclick="addToCart('${p.name}', ${p.price})">+</button>
+          <div class="section">
+            <div class="product">
+              <span>${p.name} - $${p.price.toFixed(2)}</span>
+              <button class="btn" onclick="showOptions('${p.name}', ${p.price})">+</button>
+            </div>
+            <div id="options-${p.name}" style="display:none;" class="options">
+              杯型：
+              <select id="size-${p.name}">
+                <option value="0">小杯</option>
+                <option value="0.5">中杯</option>
+                <option value="1">大杯</option>
+              </select><br>
+              冰度：
+              <select id="ice-${p.name}">
+                <option value="正常冰">正常冰</option>
+                <option value="少冰">少冰</option>
+                <option value="无冰">无冰</option>
+                <option value="热">热</option>
+              </select><br>
+              糖度：
+              <select id="sugar-${p.name}">
+                <option value="正常糖">正常糖</option>
+                <option value="少糖">少糖</option>
+                <option value="半糖">半糖</option>
+                <option value="无糖">无糖</option>
+              </select><br>
+              温度：
+              <select id="temp-${p.name}">
+                <option value="冷">冷</option>
+                <option value="热">热</option>
+              </select><br>
+              <button class="btn" onclick="addToCart('${p.name}', ${p.price}, '${p.name}')">确认加入</button>
+            </div>
           </div>
         `;
       });
-      renderCart();
     }
 
-    function addToCart(name, price) {
-      const existing = cart.find(item => item.name === name);
-      if (existing) {
-        existing.quantity++;
-      } else {
-        cart.push({ name, price, quantity: 1 });
-      }
+    function showOptions(name) {
+      const div = document.getElementById(`options-${name}`);
+      div.style.display = div.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function addToCart(name, basePrice, key) {
+      const size = parseFloat(document.getElementById(`size-${key}`).value);
+      const ice = document.getElementById(`ice-${key}`).value;
+      const sugar = document.getElementById(`sugar-${key}`).value;
+      const temp = document.getElementById(`temp-${key}`).value;
+      const finalPrice = (basePrice + size).toFixed(2);
+      const options = { size: size === 0 ? '小杯' : size === 0.5 ? '中杯' : '大杯', ice, sugar, temp };
+      const itemName = `${name} (${options.size}, ${options.ice}, ${options.sugar}, ${options.temp})`;
+      cart.push({ name: itemName, price: parseFloat(finalPrice), quantity: 1 });
       renderCart();
+      alert("已加入购物车！");
     }
 
     function renderCart() {
@@ -132,14 +166,14 @@
         cartHtml += `
           <div class="cart-item">
             <span>${item.name} x${item.quantity}</span>
-            <span>¥${item.price * item.quantity}</span>
+            <span>$${item.price.toFixed(2)}</span>
             <button class="btn" onclick="removeFromCart(${index})">删除</button>
           </div>
         `;
       });
-      cartHtml += `<div class="total">总计：¥${total}</div>`;
+      cartHtml += `<div class="total">总计：$${total.toFixed(2)}</div>`;
       cartDiv.innerHTML += cartHtml;
-      document.getElementById('total').textContent = total;
+      document.getElementById('total').textContent = total.toFixed(2);
     }
 
     function removeFromCart(index) {
@@ -147,14 +181,13 @@
       renderMenu();
     }
 
-    // 打印
     function printOrder() {
       if (cart.length === 0) return alert("购物车为空！");
-      let receipt = "茶咖小馆\n订单小票\n------------------\n";
+      let receipt = "Tea & Coffee Shop\nReceipt\n------------------\n";
       cart.forEach(item => {
-        receipt += `${item.name} x${item.quantity} = ¥${item.price * item.quantity}\n`;
+        receipt += `${item.name} x${item.quantity} = $${(item.price * item.quantity).toFixed(2)}\n`;
       });
-      receipt += "------------------\n总计：¥" + document.getElementById('total').textContent + "\n\n\n";
+      receipt += "------------------\nTotal: $" + document.getElementById('total').textContent + "\n\n\n";
       printReceipt(receipt);
     }
   </script>
