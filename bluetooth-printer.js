@@ -13,8 +13,8 @@ async function printReceipt(content) {
     const data = encoder.encode(content);
     await characteristic.writeValue(data);
 
-    alert("✅ 蓝牙打印成功！");
+    alert("✅ Bluetooth print success!");
   } catch (error) {
-    alert("❌ 打印失败：" + error.message);
+    alert("❌ Print failed: " + error.message);
   }
 }
